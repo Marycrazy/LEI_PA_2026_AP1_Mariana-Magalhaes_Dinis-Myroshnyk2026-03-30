@@ -1,14 +1,19 @@
 package main;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.surrealdb.RecordId;
+
+import main.utils.Input;
 
 public  class Employee extends RegistrableUser {
     private RecordId id;
     private String specialization;
     private ZonedDateTime start_date;
+
+    private record InputField(String field, String dbFunc) {}
 
     public Employee() {}
 
@@ -35,7 +40,7 @@ public  class Employee extends RegistrableUser {
             employee.nif = this.nif;
             employee.phone = this.phone;
             employee.specialization = this.specialization;
-            employee.start_date = this.start_date;
+            employee.start_date = (this.start_date != null) ? this.start_date : null;
             return employee;
         }
     }
@@ -49,7 +54,42 @@ public  class Employee extends RegistrableUser {
     public static Map<String, Object> toMap(Employee employee) {
         return Map.of(
             "specialization", employee.getSpecialization()
-            // "start_date", start_date //database already generates this value
         );
+    }
+
+    public static Employee create() {
+        InputField[] fields = {
+            new InputField("Name", null),
+            new InputField("Username", "fn::check_username"),
+            new InputField("Password", null),
+            new InputField("Email", "fn::check_email"),
+            new InputField("NIF", "fn::check_nif"),
+            new InputField("Phone", "fn::check_phone"),
+            new InputField("Address", null),
+            new InputField("Specialization", "fn::check_specialization"),
+        };
+
+        Map<String, String> inputMap = new HashMap<>();
+
+        for (InputField field : fields) {
+            String input = (field.dbFunc() == null)
+                ? Input.getInput(field.field())
+                : Input.getInput(field.field(), field.dbFunc());
+            if (input == null) return null;
+            inputMap.put(field.field(), input);
+        }
+
+        Employee employee = (Employee) new Employee.Builder()
+            .setSpecialization(inputMap.get("Specialization"))
+            .setNif(inputMap.get("NIF"))
+            .setPhone(inputMap.get("Phone"))
+            .setAddress(inputMap.get("Address"))
+            .setName(inputMap.get("Name"))
+            .setUsername(inputMap.get("Username"))
+            .setPassword(inputMap.get("Password"))
+            .setEmail(inputMap.get("Email"))
+            .build();
+
+        return employee;
     }
 }

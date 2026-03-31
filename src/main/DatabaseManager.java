@@ -85,6 +85,16 @@ public class DatabaseManager {
         return sb.toString();
     }
 
+    public boolean validateField(String dbFunc,  String value) {
+        try {
+            driver.run(dbFunc, value);
+            return true;
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+    }
+
     // currently for testing purposes. makes no sense fetching a user from the database while having the object in memory.
     public User fetchUser(User user) {
         String query = "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data FROM type::record($id)";
