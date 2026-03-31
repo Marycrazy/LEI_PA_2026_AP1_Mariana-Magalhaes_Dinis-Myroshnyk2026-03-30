@@ -1,9 +1,11 @@
 package main;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
 
 import com.surrealdb.Response;
 import com.surrealdb.Surreal;
+import com.surrealdb.Transaction;
 import com.surrealdb.signin.RootCredential;
 
 public class DatabaseManager {
@@ -34,32 +36,53 @@ public class DatabaseManager {
     }
 
     public void saveUser(User user) {
-        String query = "CREATE user CONTENT $data";
-        Response response = driver.queryBind(query, Map.of("data", User.toMap(user)));
-        user.setUserId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
+        Transaction transaction = driver.beginTransaction();
 
-        if (user instanceof Admin) { return; }
-        if (user instanceof RegistrableUser) {
-            RegistrableUser regUser = (RegistrableUser) user;
+        try {
+            String query = "CREATE user CONTENT " + toSQL(User.toMap(user));
+            Response response = transaction.query(query);
+            user.setUserId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
 
-            query = "CREATE registrable_user CONTENT $data";
-            response = driver.queryBind(query, Map.of("data", RegistrableUser.toMap(regUser)));
-            regUser.setRegistrableUserId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
-            driver.relate(user.getUserId(), "is_a", regUser.getRegistrableUserId());
+            if (user instanceof RegistrableUser) {
+                RegistrableUser regUser = (RegistrableUser) user;
 
-            String table = (regUser instanceof Employee) ? "employee" : "client";
-            query = "CREATE " + table + " CONTENT $data";
+                query = "CREATE registrable_user CONTENT " + toSQL(RegistrableUser.toMap(regUser));
+                response = transaction.query(query);
+                regUser.setRegistrableUserId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
+                transaction.query("RELATE " + user.getUserId() + " -> is_a -> " + regUser.getRegistrableUserId());
 
-            if (regUser instanceof Employee employee) {
-                response = driver.queryBind(query, Map.of("data", Employee.toMap(employee)));
-                employee.setEmployeeId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
-                driver.relate(regUser.getRegistrableUserId(), "of_type", employee.getEmployeeId());
-            } else if (regUser instanceof Client client) {
-                response = driver.queryBind(query, Map.of("data", Client.toMap(client)));
-                client.setClientId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
-                driver.relate(regUser.getRegistrableUserId(), "of_type", client.getClientId());
+                if (regUser instanceof Employee employee) {
+                    query = "CREATE employee CONTENT " + toSQL(Employee.toMap(employee));
+                    response = transaction.query(query);
+                    employee.setEmployeeId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
+                    transaction.query("RELATE " + regUser.getRegistrableUserId() + " -> of_type -> " + employee.getEmployeeId());
+                } else if (regUser instanceof Client client) {
+                    query = "CREATE client CONTENT " + toSQL(Client.toMap(client));
+                    response = transaction.query(query);
+                    client.setClientId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
+                    transaction.query("RELATE " + regUser.getRegistrableUserId() + " -> of_type -> " + client.getClientId());
+                }
             }
+
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.cancel();
+            System.err.println("Error saving user: " + e.getMessage());
+            System.err.println("Transaction rolled back.");
+            throw e;
         }
+    }
+
+    private String toSQL(Map<String, Object> map) {
+        StringBuilder sb = new StringBuilder("{");
+        map.forEach((key, value) -> {
+            sb.append(key).append(": ");
+            if (value instanceof String) sb.append("'").append(value).append("', ");
+            else if (value instanceof ZonedDateTime) sb.append("d'").append(value.toString()).append("', ");
+            else sb.append(value).append(", ");
+        });
+        sb.append("}");
+        return sb.toString();
     }
 
     // currently for testing purposes. makes no sense fetching a user from the database while having the object in memory.
