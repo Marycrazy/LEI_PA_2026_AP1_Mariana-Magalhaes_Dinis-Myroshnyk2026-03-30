@@ -6,6 +6,7 @@ import java.util.Map;
 import com.surrealdb.Response;
 import com.surrealdb.Surreal;
 import com.surrealdb.Transaction;
+import com.surrealdb.Value;
 import com.surrealdb.signin.RootCredential;
 
 public class DatabaseManager {
@@ -69,7 +70,7 @@ public class DatabaseManager {
             transaction.cancel();
             System.err.println("Error saving user: " + e.getMessage());
             System.err.println("Transaction rolled back.");
-            throw e;
+            throw e; // TODO: treat this exception properly somewhere
         }
     }
 
@@ -95,21 +96,39 @@ public class DatabaseManager {
         }
     }
 
-    // currently for testing purposes. makes no sense fetching a user from the database while having the object in memory.
-    public User fetchUser(User user) {
-        String query = "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data FROM type::record($id)";
+    public boolean userExists(String username, String password) {
+        Value result = driver.run("fn::user_exists", username, password);
+        return result.getBoolean();
+    }
+
+    public String getType(String username) {
+        Value result = driver.run("fn::get_user_type", username);
+        return result.getString();
+    }
+
+    public User fetchUser(String username) {
+        String query = "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data FROM user WHERE username = $username";
 
         try {
-            Response response = driver.queryBind(query, Map.of("id", user.getUserId()));
+            Response response = driver.queryBind(query, Map.of("username", username));
             var objData = response.take(0).getArray().get(0).getObject();
+            String userType = objData.get("type").getString();
+
+            if (userType.equals("ADMIN")) {
+                return new Admin.Builder()
+                    .setName(objData.get("name").getString())
+                    .setUsername(objData.get("username").getString())
+                    .setPassword(objData.get("password").getString())
+                    .setEmail(objData.get("email").getString())
+                    .build();
+            }
+
             var regData = objData.get("reg_data").getObject();
             var userData = objData.get("user_data").getArray().get(0).getObject();
-            String userType = objData.get("type").getString();
 
             if (userType.equals("EMPLOYEE")) {
                 return new Employee.Builder()
                     .setSpecialization(userData.get("specialization").getString())
-                    .setStartDate(userData.get("start_date").getDateTime())
                     .setNif(regData.get("nif").getString())
                     .setPhone(regData.get("phone").getString())
                     .setAddress(regData.get("address").getString())
@@ -117,9 +136,9 @@ public class DatabaseManager {
                     .setUsername(objData.get("username").getString())
                     .setPassword(objData.get("password").getString())
                     .setEmail(objData.get("email").getString())
-                    .setStatus(objData.get("status").getString())
                     .build();
-            } else if (userType.equals("CLIENT")) {
+            }
+            else if (userType.equals("CLIENT")) {
                 return new Client.Builder()
                     .setScale(userData.get("scale").getString())
                     .setSector(userData.get("sector").getString())
@@ -130,14 +149,9 @@ public class DatabaseManager {
                     .setUsername(objData.get("username").getString())
                     .setPassword(objData.get("password").getString())
                     .setEmail(objData.get("email").getString())
-                    .setStatus(objData.get("status").getString())
                     .build();
             }
-        } catch (Exception e) {
-            System.err.println("Error fetching user: " + e.getMessage());
-            e.printStackTrace();
-        }
-
+        } catch (Exception e) { System.err.println("Error fetching user: " + e.getMessage()); }
         return null;
     }
 }

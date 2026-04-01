@@ -2,7 +2,7 @@ package main;
 
 import main.states.FirstInitState;
 import main.states.State;
-import main.states.TestState;
+import main.states.LoginState;
 
 public class App {
     public static void main(String[] args) {
@@ -21,6 +21,6 @@ public class App {
 
     private static void sysInit() {
         if (!DatabaseManager.getInstance().hasAdmin()) State.start(new FirstInitState());
-        else State.start(new TestState());
+        else State.start(new LoginState());
     }
 }
