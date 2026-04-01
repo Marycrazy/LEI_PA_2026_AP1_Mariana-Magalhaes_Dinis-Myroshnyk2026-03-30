@@ -12,8 +12,12 @@ import com.surrealdb.signin.RootCredential;
 public class DatabaseManager {
     private static DatabaseManager instance;
     private Surreal driver;
+    private PropertiesManager props;
 
-    private DatabaseManager() { this.driver = new Surreal(); }
+    private DatabaseManager() { 
+        this.driver = new Surreal(); 
+        this.props = new PropertiesManager();
+    }
 
     public static DatabaseManager getInstance() {
         if (instance == null) {
@@ -23,9 +27,15 @@ public class DatabaseManager {
     }
 
     public void connect() {
-        driver.connect("wss://surreal.nixvps.dev");
-        driver.signin(new RootCredential("root", "toor"));
-        driver.useNs("dev").useDb("pa");
+        String connect = props.getProperty("connect");
+        String username = props.getProperty("username");
+        String password = props.getProperty("password");
+        String namespace = props.getProperty("namespace");
+        String database = props.getProperty("database");
+
+        driver.connect(connect);
+        driver.signin(new RootCredential(username, password));
+        driver.useNs(namespace).useDb(database);
     }
 
     public void close() { driver.close(); }
