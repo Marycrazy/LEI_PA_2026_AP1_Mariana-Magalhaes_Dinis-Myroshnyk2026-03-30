@@ -1,6 +1,7 @@
 package main.states;
 
 import main.DatabaseManager;
+import main.DatabaseManager.NotificationRequest;
 import main.enums.UserType;
 import main.models.Client;
 import main.models.Employee;
@@ -43,7 +44,7 @@ public class SignUp extends State {
         if (user == null) return;
 
         DatabaseManager.getInstance().saveUser(user);
-        DatabaseManager.getInstance().sendNotification("User '" + user.getUsername() + "' awaiting approval", UserType.ADMIN.toString());
+        DatabaseManager.getInstance().sendNotification(new NotificationRequest("User '" + user.getUsername() + "' awaiting approval", UserType.ADMIN.toString()));
         System.out.println(type.substring(0, 1).toUpperCase() + type.substring(1) + " created!");
         System.out.println("Please wait while an admin reviews your request...");
         PressKey.enter();

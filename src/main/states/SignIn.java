@@ -1,6 +1,7 @@
 package main.states;
 
 import main.DatabaseManager;
+import main.DatabaseManager.UserCredentials;
 import main.models.Admin;
 import main.models.Client;
 import main.models.Employee;
@@ -29,7 +30,7 @@ public class SignIn extends State {
             return;
         }
 
-        if (DatabaseManager.getInstance().userExists(username, password)) {
+        if (DatabaseManager.getInstance().userExists(new UserCredentials(username, password))) {
             if (!isActiveUser(username)) return;
 
             String type = DatabaseManager.getInstance().getType(username);

@@ -1,6 +1,7 @@
 package main.utils;
 
 import main.DatabaseManager;
+import main.DatabaseManager.DbFunctionCall;
 
 public class Validator {
     private static boolean isEmpty(String value) {
@@ -11,7 +12,7 @@ public class Validator {
         if (isEmpty(value)) {
             System.err.println("Field cannot be empty!");
             return false;
-        } else if (!DatabaseManager.getInstance().validateField(dbFunc, value)) return false;
+        } else if (!DatabaseManager.getInstance().validateField(new DbFunctionCall(dbFunc, value))) return false;
         return true;
     }
 

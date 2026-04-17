@@ -19,6 +19,10 @@ import main.models.User;
 import main.models.Notification;
 
 public class DatabaseManager {
+    public record UserCredentials(String username, String password) {}
+    public record DbFunctionCall(String dbFunc, String value) {}
+    public record NotificationRequest(String content, Object target) {}
+
     private static DatabaseManager instance;
     private Surreal driver;
     private PropertiesManager props;
@@ -107,9 +111,9 @@ public class DatabaseManager {
         return sb.toString();
     }
 
-    public boolean validateField(String dbFunc,  String value) {
+    public boolean validateField(DbFunctionCall call) {
         try {
-            driver.run(dbFunc, value);
+            driver.run(call.dbFunc, call.value);
             return true;
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -117,8 +121,8 @@ public class DatabaseManager {
         }
     }
 
-    public boolean userExists(String username, String password) {
-        Value result = driver.run("fn::user_exists", username, password);
+    public boolean userExists(UserCredentials credentials) {
+        Value result = driver.run("fn::user_exists", credentials.username, credentials.password);
         return result.getBoolean();
     }
 
@@ -188,8 +192,8 @@ public class DatabaseManager {
         return null;
     }
 
-    public void sendNotification(String content, Object target) {
-        Notification note = new Notification(content, target);
+    public void sendNotification(NotificationRequest request) {
+        Notification note = new Notification(request.content, request.target);
         driver.create("notification", note);
     }
 
