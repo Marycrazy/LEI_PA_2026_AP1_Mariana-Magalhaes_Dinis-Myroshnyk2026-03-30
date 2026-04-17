@@ -2,9 +2,11 @@ package main.states;
 
 import java.util.Stack;
 
+import main.models.User;
 import main.utils.Clear;
 
 public abstract class State {
+    protected static User user;
     private static Stack<State> stateStack = new Stack<>();
     private static boolean isRunning = true;
 

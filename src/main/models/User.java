@@ -1,11 +1,8 @@
-package main;
+package main.models;
 
 import java.util.Map;
 
 import com.surrealdb.RecordId;
-
-enum UserStatus { ACTIVE, INACTIVE, REJECTED, PENDING }
-enum UserType { CLIENT, EMPLOYEE, ADMIN }
 
 public abstract class User {
     protected RecordId id;
@@ -17,8 +14,10 @@ public abstract class User {
         // https://www.baeldung.com/java-builder-pattern-inheritance
 
     public abstract static class Builder<T extends Builder<T>> {
+        protected RecordId id;
         protected String name, username, password, email, type, status;
 
+        public Builder<T> setId(RecordId id) { this.id = id; return self(); }
         public Builder<T> setName(String name) { this.name = name; return self(); }
         public Builder<T> setUsername(String username) { this.username = username; return self(); }
         public Builder<T> setPassword(String password) { this.password = password; return self(); }

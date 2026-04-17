@@ -1,10 +1,12 @@
-package main;
+package main.models;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.surrealdb.RecordId;
 
+import main.enums.UserStatus;
+import main.enums.UserType;
 import main.utils.Input;
 
 public class Client extends RegistrableUser {
@@ -27,6 +29,7 @@ public class Client extends RegistrableUser {
         @Override
         public Client build() {
             Client client = new Client();
+            client.setUserId(id);
             client.name = this.name;
             client.username = this.username;
             client.password = this.password;

@@ -1,8 +1,10 @@
-package main;
+package main.models;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import main.enums.UserStatus;
+import main.enums.UserType;
 import main.utils.Input;
 
 public class Admin extends User {
@@ -17,6 +19,7 @@ public class Admin extends User {
         @Override
         public Admin build() {
             Admin admin = new Admin();
+            admin.id = this.id;
             admin.name = this.name;
             admin.username = this.username;
             admin.password = this.password;

@@ -1,7 +1,7 @@
 package main.states;
 
-import main.Admin;
 import main.DatabaseManager;
+import main.models.Admin;
 import main.utils.PressKey;
 
 public class FirstInitState extends State {
@@ -17,10 +17,10 @@ public class FirstInitState extends State {
         if (admin == null) System.exit(0);
 
         DatabaseManager.getInstance().saveUser(admin);
+        State.user = admin;
         System.out.println("Admin user created!");
         PressKey.enter();
 
-        this.back();
-        new TestState().enter();
+        new AdminMenuState().enter();
     }
 }

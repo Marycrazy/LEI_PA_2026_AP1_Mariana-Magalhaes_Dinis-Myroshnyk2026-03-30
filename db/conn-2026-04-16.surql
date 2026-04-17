@@ -5,6 +5,19 @@
 OPTION IMPORT;
 
 -- ------------------------------
+-- FUNCTIONS
+-- ------------------------------
+
+DEFINE FUNCTION fn::check_email($input: string) -> bool { IF !string::is_email($input) { THROW 'Invalid email format' }; RETURN true; } COMMENT '' PERMISSIONS FULL;
+DEFINE FUNCTION fn::check_nif($input: string) -> bool { IF $input != /^[1-9]\d{8}$/ { THROW 'Malformed NIF' }; IF (SELECT id FROM registrable_user WHERE nif = $input)[0] { THROW 'NIF already exists' }; RETURN true; } COMMENT '' PERMISSIONS FULL;
+DEFINE FUNCTION fn::check_phone($input: string) -> bool { IF $input != /^[923]\d{8}$/ { THROW 'Invalid phone number' }; RETURN true; } COMMENT '' PERMISSIONS FULL;
+DEFINE FUNCTION fn::check_scale($input: string) -> bool { IF $input NOTINSIDE ['A', 'B', 'C', 'D'] { THROW 'Scale not of value [A, B, C, D]' }; RETURN true; } COMMENT '' PERMISSIONS FULL;
+DEFINE FUNCTION fn::check_specialization($input: string) -> bool { IF $input NOTINSIDE ['1', '2', '3', '4', '5'] { THROW 'Scale not of value [1, 2, 3, 4, 5]' }; RETURN true; } COMMENT '' PERMISSIONS FULL;
+DEFINE FUNCTION fn::check_username($input: string) -> bool { IF (SELECT id FROM user WHERE username = $input)[0] { THROW 'Username is already taken' }; RETURN true; } COMMENT '' PERMISSIONS FULL;
+DEFINE FUNCTION fn::get_user_type($user: string) -> string { RETURN (SELECT VALUE type FROM user WHERE username = $user)[0] } COMMENT '' PERMISSIONS FULL;
+DEFINE FUNCTION fn::user_exists($user: string, $pass: string) -> bool { IF (SELECT id FROM user WHERE username = $user AND password = $pass)[0] { RETURN true }; RETURN false; } COMMENT '' PERMISSIONS FULL;
+
+-- ------------------------------
 -- TABLE: client
 -- ------------------------------
 
@@ -19,7 +32,7 @@ DEFINE FIELD sector ON client TYPE string PERMISSIONS FULL;
 -- TABLE DATA: client
 -- ------------------------------
 
-INSERT [ { id: client:ri02s3ajbxii7qnrkym2, scale: 'A', sector: 'Test Sector' } ];
+INSERT [ { id: client:zc2mfyvyp5aghg0m4c1v, scale: 'B', sector: 'abc' } ];
 
 -- ------------------------------
 -- TABLE: contains
@@ -52,7 +65,6 @@ DEFINE FIELD start_date ON employee TYPE datetime DEFAULT time::now() PERMISSION
 -- TABLE DATA: employee
 -- ------------------------------
 
-INSERT [ { id: employee:8fvkn1do7z7f1bwk0j1q, specialization: '1', start_date: d'2026-03-30T21:09:59.090681069Z' } ];
 
 -- ------------------------------
 -- TABLE: equipment
@@ -123,7 +135,7 @@ DEFINE FIELD out ON is_a TYPE record<registrable_user> PERMISSIONS FULL;
 -- TABLE DATA: is_a
 -- ------------------------------
 
-INSERT RELATION [ { id: is_a:cvlagheb59vuhn9e51nr, in: user:8pl4kdxo4an6j5vkrgop, out: registrable_user:tej25f22qkg84xcqfyyy }, { id: is_a:qsyawq0juqgus0kwqqqr, in: user:mqarklizl4rwxnjq9xdj, out: registrable_user:sezn94b9mt9cer9qyux9 } ];
+INSERT RELATION [ { id: is_a:zat4aiep9n84o1c1lnne, in: user:y3ea297c5cwk9d30k7aa, out: registrable_user:zipcsugqkunrf8vu06cv } ];
 
 -- ------------------------------
 -- TABLE: log
@@ -142,23 +154,25 @@ DEFINE FIELD user ON log TYPE record<user> PERMISSIONS FULL;
 -- TABLE DATA: log
 -- ------------------------------
 
+INSERT [ { action: 'INSERT', created_at: d'2026-04-16T19:02:16.745039924Z', details: "User 'client' (CLIENT) was registered in the system.", id: log:0dceiay4hkt1qmqtbkrc, user: user:jska125ufshgcj8tbokb }, { action: 'INSERT', created_at: d'2026-04-16T17:41:15.555710086Z', details: "User 'mary' (EMPLOYEE) was registered in the system.", id: log:0s7w2w3oqmied2ecbpoz, user: user:6zmfjx5ur12sbbqt8spl }, { action: 'INSERT', created_at: d'2026-04-16T18:03:15.147750554Z', details: "User 'testclient' (CLIENT) was registered in the system.", id: log:4zdv9kustu9gm6pc8yvh, user: user:wsqjsdmja7vh5rxutzeh }, { action: 'INSERT', created_at: d'2026-04-16T18:54:24.928128356Z', details: "User 'testuser' (CLIENT) was registered in the system.", id: log:g0t07qgvkymzjq6bacn0, user: user:x6o6cvyg3x7ua696bacr }, { action: 'INSERT', created_at: d'2026-04-16T21:33:29.862640236Z', details: "User 'client' (CLIENT) was registered in the system.", id: log:gpb85ms3qa75c9bt3xcv, user: user:y3ea297c5cwk9d30k7aa }, { action: 'INSERT', created_at: d'2026-04-16T19:06:36.784995906Z', details: "User 'client' (CLIENT) was registered in the system.", id: log:phzg3e4fuzo3aw1peqdl, user: user:fbnkoyvc5326gwr6yzu2 }, { action: 'INSERT', created_at: d'2026-04-16T19:01:04.572193148Z', details: "User 'admin' (ADMIN) was registered in the system.", id: log:ukix8r3iwpmb3yfeluuv, user: user:3xn26pscybryt47nhopo }, { action: 'INSERT', created_at: d'2026-04-16T18:39:10.693627848Z', details: "User 'fffff' (EMPLOYEE) was registered in the system.", id: log:ul5800i0kdl69btviepr, user: user:qabvyh3c7d61hpxhtxiu } ];
 
 -- ------------------------------
--- TABLE: notifications
+-- TABLE: notification
 -- ------------------------------
 
-DEFINE TABLE notifications TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE notification TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD content ON notifications TYPE string PERMISSIONS FULL;
-DEFINE FIELD created_at ON notifications TYPE datetime PERMISSIONS FULL;
-DEFINE FIELD target ON notifications TYPE record | string PERMISSIONS FULL;
+DEFINE FIELD content ON notification TYPE string PERMISSIONS FULL;
+DEFINE FIELD created_at ON notification TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD target ON notification TYPE record | string PERMISSIONS FULL;
 
 
 
 -- ------------------------------
--- TABLE DATA: notifications
+-- TABLE DATA: notification
 -- ------------------------------
 
+INSERT [ { content: "User 'client' awaiting approval", created_at: d'2026-04-16T21:33:30.348484060Z', id: notification:p6indc5kfodbkfs9iba5, target: 'ADMIN' } ];
 
 -- ------------------------------
 -- TABLE: of_type
@@ -175,7 +189,7 @@ DEFINE FIELD out ON of_type TYPE record<client | employee> PERMISSIONS FULL;
 -- TABLE DATA: of_type
 -- ------------------------------
 
-INSERT RELATION [ { id: of_type:e01zppzrv99mpphei563, in: registrable_user:tej25f22qkg84xcqfyyy, out: employee:8fvkn1do7z7f1bwk0j1q }, { id: of_type:jwsokigqetgdp4aoxfob, in: registrable_user:sezn94b9mt9cer9qyux9, out: client:ri02s3ajbxii7qnrkym2 } ];
+INSERT RELATION [ { id: of_type:nebih1vn6d64xkugxmtj, in: registrable_user:zipcsugqkunrf8vu06cv, out: client:zc2mfyvyp5aghg0m4c1v } ];
 
 -- ------------------------------
 -- TABLE: part
@@ -211,7 +225,7 @@ DEFINE INDEX unique_nif ON registrable_user FIELDS nif UNIQUE;
 -- TABLE DATA: registrable_user
 -- ------------------------------
 
-INSERT [ { address: 'Test Address', id: registrable_user:sezn94b9mt9cer9qyux9, nif: '223456789', phone: '923456789' }, { address: 'Test Address', id: registrable_user:tej25f22qkg84xcqfyyy, nif: '123456789', phone: '923456789' } ];
+INSERT [ { address: 'Bla Bla', id: registrable_user:zipcsugqkunrf8vu06cv, nif: '261734892', phone: '923100957' } ];
 
 -- ------------------------------
 -- TABLE: repair
@@ -284,12 +298,19 @@ DEFINE FIELD username ON user TYPE string PERMISSIONS FULL;
 
 DEFINE INDEX unique_username ON user FIELDS username UNIQUE;
 
+DEFINE EVENT log_user_create ON user WHEN $event = 'CREATE' THEN { CREATE log SET action = 'INSERT', created_at = time::now(), details = string::concat("User '", $after.username, "' (", $after.type, ') was registered in the system.'), user = $after.id };
+DEFINE EVENT log_user_update ON user WHEN $event = 'UPDATE' THEN { LET $changes = []; LET $fields = ['name', 'password', 'username', 'email', 'status']; FOR $field IN $fields { IF $before[$field] = DISTINCT OR $after[$field] {
+LET $old = $before[$field] ?? '';
+LET $new = $after[$field] ?? '';
+LET $change = string::concat($field, ": '", $old, "' -> '", $new, "'");
+LET $changes = array::push($changes, $change);
+} }; LET $details = (IF array::len($changes) > 0 { string::concat('User updated. Changes: ', array::join($changes, ', ')) } ELSE { 'User updated. No changes in monitored fields.' }); CREATE log SET action = 'UPDATE', created_at = time::now(), details = $details, user = $after.id; };
 
 -- ------------------------------
 -- TABLE DATA: user
 -- ------------------------------
 
-INSERT [ { email: 'test_employee@test.com', id: user:8pl4kdxo4an6j5vkrgop, name: 'Test Employee', password: 'test_employee', status: 'PENDING', type: 'EMPLOYEE', username: 'test_employee' }, { email: 'test_client@test.com', id: user:mqarklizl4rwxnjq9xdj, name: 'Test Client', password: 'test_client', status: 'PENDING', type: 'CLIENT', username: 'test_client' }, { email: 'asdas@asd.asd', id: user:znr5ldr3ljcpzuf1i8ov, name: 'asdsad', password: 'asdasd', status: 'ACTIVE', type: 'ADMIN', username: 'asdasd' } ];
+INSERT [ { email: 'admin@admin.com', id: user:3xn26pscybryt47nhopo, name: 'Admin', password: 'admin', status: 'ACTIVE', type: 'ADMIN', username: 'porra' }, { email: 'client@client.com', id: user:y3ea297c5cwk9d30k7aa, name: 'Test Client', password: 'client', status: 'PENDING', type: 'CLIENT', username: 'client' } ];
 
 -- ------------------------------
 -- TABLE: user_repair
@@ -308,18 +329,18 @@ DEFINE FIELD out ON user_repair TYPE record<repair> PERMISSIONS FULL;
 
 
 -- ------------------------------
--- TABLE: viewed_notifications
+-- TABLE: viewed_notification
 -- ------------------------------
 
-DEFINE TABLE viewed_notifications TYPE RELATION IN user OUT notifications SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE viewed_notification TYPE RELATION IN user OUT notification SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD in ON viewed_notifications TYPE record<user> PERMISSIONS FULL;
-DEFINE FIELD out ON viewed_notifications TYPE record<notifications> PERMISSIONS FULL;
+DEFINE FIELD in ON viewed_notification TYPE record<user> PERMISSIONS FULL;
+DEFINE FIELD out ON viewed_notification TYPE record<notification> PERMISSIONS FULL;
 
 
 
 -- ------------------------------
--- TABLE DATA: viewed_notifications
+-- TABLE DATA: viewed_notification
 -- ------------------------------
 
 

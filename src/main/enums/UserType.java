@@ -1,7 +1,7 @@
 package main.enums;
 
-public enum Userscale {
-    A, B, C, D;
+public enum UserType {
+    ADMIN, EMPLOYEE, CLIENT;
 
     public String toString() {
         return this.name().toUpperCase();

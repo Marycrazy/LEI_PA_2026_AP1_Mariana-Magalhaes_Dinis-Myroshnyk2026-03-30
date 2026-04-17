@@ -1,4 +1,4 @@
-package main;
+package main.models;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.surrealdb.RecordId;
 
+import main.enums.UserStatus;
+import main.enums.UserType;
 import main.utils.Input;
 
 public  class Employee extends RegistrableUser {
@@ -30,6 +32,7 @@ public  class Employee extends RegistrableUser {
         @Override
         public Employee build() {
             Employee employee = new Employee();
+            employee.setUserId(id);
             employee.name = this.name;
             employee.username = this.username;
             employee.password = this.password;

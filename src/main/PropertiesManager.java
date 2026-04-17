@@ -9,16 +9,15 @@ import java.util.Properties;
 // https://www.youtube.com/watch?v=jRigxelb43E
 // https://docs.oracle.com/javase/tutorial/essential/environment/properties.html
 public class PropertiesManager {
-    private static String file = "./config.properties";
+    private static String file = "./db/config.properties";
     private static Properties props;
 
-    public PropertiesManager(){
+    public PropertiesManager() {
         props = new Properties();
         try(FileInputStream files = new FileInputStream(file)){
             props.load(files);
         } catch (IOException e) {
-            System.err.println("Properties file not found or error loading.");
-            e.printStackTrace();
+            return;
         }
     }
 
@@ -36,12 +35,12 @@ public class PropertiesManager {
     public String getProperty(String key){
         return props.getProperty(key);
     }
+
     public void setProperty(String key, String value){
         props.setProperty(key, value);
     }
 
     public boolean hasProperties(){
-        return getProperty("connect") != null && getProperty("username") != null && getProperty("password") != null && getProperty("namespace") != null && getProperty("database") != null; 
+        return getProperty("connect") != null && getProperty("username") != null && getProperty("password") != null && getProperty("namespace") != null && getProperty("database") != null;
     }
-    
 }

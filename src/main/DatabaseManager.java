@@ -1,6 +1,8 @@
 package main;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.surrealdb.Response;
@@ -9,13 +11,20 @@ import com.surrealdb.Transaction;
 import com.surrealdb.Value;
 import com.surrealdb.signin.RootCredential;
 
+import main.models.Admin;
+import main.models.Client;
+import main.models.Employee;
+import main.models.RegistrableUser;
+import main.models.User;
+import main.models.Notification;
+
 public class DatabaseManager {
     private static DatabaseManager instance;
     private Surreal driver;
     private PropertiesManager props;
 
-    private DatabaseManager() { 
-        this.driver = new Surreal(); 
+    private DatabaseManager() {
+        this.driver = new Surreal();
         this.props = new PropertiesManager();
     }
 
@@ -45,6 +54,8 @@ public class DatabaseManager {
         Response response = driver.query(query);
         return response.take(0).getArray().get(0).getObject().get("count").getLong() > 0;
     }
+
+    public boolean isConfigured() { return props.hasProperties(); }
 
     public void saveUser(User user) {
         Transaction transaction = driver.beginTransaction();
@@ -111,6 +122,15 @@ public class DatabaseManager {
         return result.getBoolean();
     }
 
+    public String getUserStatus(String username) {
+        String query = "SELECT status FROM user WHERE username = $username";
+
+        Response response = driver.queryBind(query, Map.of("username", username));
+        Value result = response.take(0);
+
+        return result.getArray().get(0).getObject().get("status").getString();
+    }
+
     public String getType(String username) {
         Value result = driver.run("fn::get_user_type", username);
         return result.getString();
@@ -126,6 +146,7 @@ public class DatabaseManager {
 
             if (userType.equals("ADMIN")) {
                 return new Admin.Builder()
+                    .setId(objData.get("id").getRecordId())
                     .setName(objData.get("name").getString())
                     .setUsername(objData.get("username").getString())
                     .setPassword(objData.get("password").getString())
@@ -142,6 +163,7 @@ public class DatabaseManager {
                     .setNif(regData.get("nif").getString())
                     .setPhone(regData.get("phone").getString())
                     .setAddress(regData.get("address").getString())
+                    .setId(objData.get("id").getRecordId())
                     .setName(objData.get("name").getString())
                     .setUsername(objData.get("username").getString())
                     .setPassword(objData.get("password").getString())
@@ -155,6 +177,7 @@ public class DatabaseManager {
                     .setNif(regData.get("nif").getString())
                     .setPhone(regData.get("phone").getString())
                     .setAddress(regData.get("address").getString())
+                    .setId(objData.get("id").getRecordId())
                     .setName(objData.get("name").getString())
                     .setUsername(objData.get("username").getString())
                     .setPassword(objData.get("password").getString())
@@ -163,5 +186,44 @@ public class DatabaseManager {
             }
         } catch (Exception e) { System.err.println("Error fetching user: " + e.getMessage()); }
         return null;
+    }
+
+    public void sendNotification(String content, Object target) {
+        Notification note = new Notification(content, target);
+        driver.create("notification", note);
+    }
+
+    public long getUnreadNotifications(User user) {
+        String query =  "SELECT count() FROM notification " +
+                        "WHERE (target = $id OR target = $type) " +
+                            "AND id NOTINSIDE (SELECT VALUE out FROM viewed_notification WHERE in = $id) " +
+                        "GROUP ALL";
+
+        Response response = driver.queryBind(query, Map.of("id", user.getUserId(), "type", user.getType()));
+        Value result = response.take(0);
+
+        return result.getArray().get(0).getObject().get("count").getLong();
+    }
+
+    public List<Notification> getNotifications(User user, boolean listAll) {
+        String query = "SELECT * FROM notification WHERE (target = $id OR target = $type) ";
+
+        if (!listAll) query += "AND id NOTINSIDE (SELECT VALUE out FROM viewed_notification WHERE in = $id) ";
+        query += "ORDER BY created_at DESC";
+
+        Response response = driver.queryBind(query, Map.of("id", user.getUserId(), "type", user.getType()));
+        Value result = response.take(0);
+
+        List<Notification> notificationList = new ArrayList<Notification>();
+        for (Value element : result.getArray()) {
+            Notification notification = element.get(Notification.class);
+            notificationList.add(notification);
+        }
+
+        return notificationList;
+    }
+
+    public void markAsRead(User user, Notification notification) {
+        driver.relate(user.getUserId(), "viewed_notification", notification.getId());
     }
 }
