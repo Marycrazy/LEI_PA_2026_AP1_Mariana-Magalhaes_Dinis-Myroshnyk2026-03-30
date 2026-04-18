@@ -31,7 +31,7 @@ public class ListUsersState extends ListState<User> {
     @Override
     protected void renderExtras() {
         System.out.println("Sort: N. Name  T. Type  S. Status  | Order: A. Asc  D. Desc");
-        System.out.println("Search: [" + (search.isEmpty() ? "        " : search) + "]  F. Filter");
+        System.out.println("Search: [" + (search.isEmpty() ? " " : search) + "]  F. Filter");
     }
 
     @Override

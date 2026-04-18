@@ -53,7 +53,7 @@ public class SignIn extends State {
                 State.user = client;
                 System.out.println("Welcome " + client.getName() + "!");
                 PressKey.enter();
-                // new ClientMenuState().enter();
+                new ClientMenuState().enter();
             }
         } else {
             System.out.println("Invalid username or password!");

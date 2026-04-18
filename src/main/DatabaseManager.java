@@ -1,7 +1,10 @@
 package main;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +21,9 @@ import main.enums.UserStatus;
 import main.models.Admin;
 import main.models.Client;
 import main.models.Employee;
+import main.models.Equipment;
 import main.models.RegistrableUser;
+import main.models.Repair;
 import main.models.User;
 import main.models.Notification;
 import main.models.Part;
@@ -109,7 +114,10 @@ public class DatabaseManager {
         map.forEach((key, value) -> {
             sb.append(key).append(": ");
             if (value instanceof String) sb.append("'").append(value).append("', ");
-            else if (value instanceof ZonedDateTime) sb.append("d'").append(value.toString()).append("', ");
+            else if (value instanceof ZonedDateTime) {
+                ZonedDateTime utc = ((ZonedDateTime) value).withZoneSameInstant(ZoneOffset.UTC);
+                sb.append("d'").append(utc.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)).append("', ");
+            }
             else sb.append(value).append(", ");
         });
         sb.append("}");
@@ -333,5 +341,183 @@ public class DatabaseManager {
     public Part fetchPart(RecordId id) {
         Optional<Part> part = driver.select(Part.class, id);
         return part.get();
+    }
+
+    public void saveEquipment(Equipment equipment, User user) {
+        while (!skuExists(equipment.getSku())) {
+            equipment.regenerateSku();
+        }
+
+        Transaction transaction = driver.beginTransaction();
+        try {
+            String query = "CREATE equipment CONTENT " + toSQL(Equipment.toMap(equipment));
+            Response response = transaction.query(query);
+            RecordId equipmentId = response.take(0).getArray().get(0).getObject().get("id").getRecordId(); equipment.setId(equipmentId);
+
+            RecordId clientId = transaction.query(
+                "(SELECT VALUE ->is_a.out->of_type.out FROM " + user.getUserId() + ")[0][0]"
+            ).take(0).getArray().get(0).getRecordId();
+
+            transaction.query("RELATE " + clientId + " -> inserts -> " + equipmentId);
+
+            transaction.commit();
+        }
+        catch (Exception e) {
+            transaction.cancel();
+            System.err.println("Error saving equipment: " + e.getMessage());
+            System.err.println("Transaction rolled back.");
+        }
+    }
+
+    private boolean skuExists(int sku) {
+        Value result = driver.run("fn::check_sku", sku);
+        return result.getBoolean();
+    }
+
+    public List<Equipment> getEquipment(RecordId userId, String search) {
+        String query = "SELECT * FROM (SELECT VALUE ->is_a.out->of_type.out->inserts.out FROM " + userId + ")[0][0][0]";
+
+        if (!search.isEmpty())
+            query += " WHERE string::contains(string::lowercase(brand), string::lowercase($search))" +
+                    " OR string::contains(string::lowercase(model), string::lowercase($search))";
+
+        query += " ORDER BY brand ASC";
+
+        Response response = search.isEmpty()
+            ? driver.query(query)
+            : driver.queryBind(query, Map.of("search", search));
+
+        List<Equipment> list = new ArrayList<>();
+        for (Value element : response.take(0).getArray())
+            list.add(element.get(Equipment.class));
+        return list;
+    }
+
+    //------------------- TODO: --------------------
+
+    public void saveRepair(Equipment equipment, User user) {
+        Transaction transaction = driver.beginTransaction();
+
+        try {
+            String query = "CREATE repair";
+            Response response = transaction.query(query);
+            RecordId repairId = response.take(0).getArray().get(0).getObject().get("id").getRecordId();
+
+            transaction.query("RELATE " + equipment.getId() + " -> contains -> " + repairId);
+            transaction.query("RELATE " + user.getUserId() + " -> user_repair -> " + repairId);
+
+            transaction.commit();
+
+            sendNotification(new NotificationRequest(
+                "New repair request submitted by " + user.getName(), "ADMIN"));
+
+        } catch (Exception e) {
+            transaction.cancel();
+            System.err.println("Error saving repair: " + e.getMessage());
+            System.err.println("Transaction rolled back.");
+            throw e;
+        }
+    }
+
+    public List<Repair> getRepairs(String search, String filterState, boolean asc) {
+        String query = "SELECT * FROM repair WHERE 1 = 1 ";
+        if (!filterState.isEmpty()) query += "AND state = '" + filterState + "' ";
+        if (!search.isEmpty())
+            query += "AND (repair_code ~ $search OR (<-requested.in.name)[0] ~ $search) ";
+        query += "ORDER BY start_date " + (asc ? "ASC" : "DESC");
+
+        Response response = search.isEmpty()
+            ? driver.query(query)
+            : driver.queryBind(query, Map.of("search", search));
+
+        List<Repair> list = new ArrayList<>();
+        for (Value element : response.take(0).getArray())
+            list.add(repairFromValue(element));
+        return list;
+    }
+
+    public Repair fetchRepair(RecordId id) {
+        Response response = driver.queryBind("SELECT * FROM $id", Map.of("id", id));
+        return repairFromValue(response.take(0).getArray().get(0));
+    }
+
+    public void rejectRepair(Repair repair, String reason) {
+        Transaction transaction = driver.beginTransaction();
+        try {
+            transaction.query("UPDATE " + repair.getId() + " SET state = 'REJECTED'" +
+                (reason.isEmpty() ? "" : ", observations = '" + reason + "'"));
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.cancel();
+            System.err.println("Error rejecting repair: " + e.getMessage());
+            throw e;
+        }
+
+        try {
+            RecordId clientId = driver.queryBind(
+                "(SELECT VALUE <-requested.in FROM repair WHERE id = $id)[0][0]",
+                Map.of("id", repair.getId())
+            ).take(0).getArray().get(0).getRecordId();
+
+            sendNotification(new NotificationRequest(
+                "Your repair request " + repair.getRepairCode() + " was rejected." +
+                (reason.isEmpty() ? "" : " Reason: " + reason),
+                clientId));
+        } catch (Exception e) {
+            System.err.println("Failed to notify client: " + e.getMessage());
+        }
+    }
+
+    public void updateRepairState(RecordId repairId, String state) {
+        driver.query("UPDATE " + repairId + " SET state = '" + state + "'");
+    }
+
+    public List<Employee> getAvailableEmployees(RecordId repairId) {
+        String query = "SELECT * FROM user WHERE type = 'EMPLOYEE' AND status = 'ACTIVE' " +
+                    "AND id NOTINSIDE (SELECT VALUE in FROM rejected_repair WHERE out = $repairId)";
+        Response response = driver.queryBind(query, Map.of("repairId", repairId));
+        List<Employee> list = new ArrayList<>();
+        for (Value element : response.take(0).getArray())
+            list.add((Employee) userFromValue(element));
+        return list;
+    }
+
+    public void assignEmployee(Repair repair, Employee employee) {
+        Transaction transaction = driver.beginTransaction();
+        try {
+            transaction.query("UPDATE " + repair.getId() + " SET state = 'ACCEPTED'");
+            transaction.query("RELATE " + employee.getUserId() + " -> user_repair -> " + repair.getId());
+            transaction.commit();
+
+            sendNotification(new NotificationRequest(
+                "You have been assigned repair " + repair.getRepairCode(),
+                employee.getUserId()));
+        } catch (Exception e) {
+            transaction.cancel();
+            System.err.println("Error assigning employee: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    private Repair repairFromValue(Value element) {
+        var obj = element.getObject();
+        Repair repair = new Repair();
+        repair.setId(obj.get("id").getRecordId());
+
+        Value repairCode = obj.get("repair_code");
+        Value state = obj.get("state");
+        Value observations = obj.get("observations");
+        Value startDate = obj.get("start_date");
+        Value endDate = obj.get("end_date");
+        Value cost = obj.get("cost");
+
+        if (repairCode != null && !repairCode.isNone()) repair.setRepairCode(repairCode.getString());
+        repair.setState(state.getString());
+        if (observations != null && !observations.isNone()) repair.setObservations(observations.getString());
+        repair.setStartDate(startDate.getDateTime());
+        if (endDate != null && !endDate.isNone()) repair.setEndDate(endDate.getDateTime());
+        if (cost != null && !cost.isNull()) repair.setCost(cost.getDouble());
+
+        return repair;
     }
 }

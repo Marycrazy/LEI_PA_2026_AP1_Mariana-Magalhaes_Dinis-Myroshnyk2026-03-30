@@ -27,7 +27,7 @@ public class ListPartsState extends ListState<Part> {
 
     @Override
     protected void renderExtras() {
-        System.out.println("F. Search");
+        System.out.println("Search: [" + (search.isEmpty() ? " " : search) + "]  F. Filter");
     }
 
     @Override
