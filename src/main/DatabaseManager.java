@@ -4,10 +4,13 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import com.surrealdb.RecordId;
 import com.surrealdb.Response;
 import com.surrealdb.Surreal;
 import com.surrealdb.Transaction;
+import com.surrealdb.UpType;
 import com.surrealdb.Value;
 import com.surrealdb.signin.RootCredential;
 
@@ -18,6 +21,7 @@ import main.models.Employee;
 import main.models.RegistrableUser;
 import main.models.User;
 import main.models.Notification;
+import main.models.Part;
 
 public class DatabaseManager {
     public record UserCredentials(String username, String password) {}
@@ -298,5 +302,36 @@ public class DatabaseManager {
             System.err.println("Transaction rolled back.");
             throw e;
         }
+    }
+
+    public void savePart(Part part) {
+        driver.create("part", part);
+    }
+
+    public void updatePart(Part part) {
+        driver.update(part.getId(), UpType.MERGE, part);
+    }
+
+    public List<Part> getParts(String search) {
+        String query = "SELECT * FROM part";
+        if (!search.isEmpty())
+            query += " WHERE string::contains(string::lowercase(designation), string::lowercase($search))" +
+                    " OR string::contains(string::lowercase(manufacturer), string::lowercase($search))";
+
+        Response response = search.isEmpty()
+            ? driver.query(query)
+            : driver.queryBind(query, Map.of("search", search));
+
+        List<Part> parts = new ArrayList<>();
+        for (Value element : response.take(0).getArray()) {
+            Part part = element.get(Part.class);
+            parts.add(part);
+        }
+        return parts;
+    }
+
+    public Part fetchPart(RecordId id) {
+        Optional<Part> part = driver.select(Part.class, id);
+        return part.get();
     }
 }

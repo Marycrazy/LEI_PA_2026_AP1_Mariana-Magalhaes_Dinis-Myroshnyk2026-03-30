@@ -13,7 +13,7 @@ public class AdminMenuState extends State {
         System.out.println("Notifications [" + notifications + " pending]\n");
         System.out.println("1. Manage users");
         System.out.println("2. Manage repairs [TODO]");
-        System.out.println("3. Manage parts [TODO]");
+        System.out.println("3. Manage parts");
         System.out.println("4. Notifications");
         System.out.println("5. Action log [TODO]");
         System.out.println("0. Back");
@@ -27,7 +27,7 @@ public class AdminMenuState extends State {
         switch (input) {
             case "1": new ManageUsersMenuState().enter(); break;
             case "2": break;
-            case "3": break;
+            case "3": new ManagePartsMenuState().enter(); break;
             case "4": new NotificationMenuState().enter(); break;
             case "5": break;
             case "0": this.back(); this.back(); break;
