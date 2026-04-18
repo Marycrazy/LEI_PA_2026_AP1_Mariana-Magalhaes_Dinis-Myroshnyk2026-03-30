@@ -39,6 +39,7 @@ public abstract class User {
 
     // setters
     public void setUserId(RecordId id) { this.id = id; }
+    public void setStatus(String status) { this.status = status; }
 
     // everthing else
     public static Map<String, Object> toMap(User user) {

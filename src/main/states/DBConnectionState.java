@@ -5,7 +5,7 @@ import main.PropertiesManager;
 import main.utils.Input;
 import main.utils.PressKey;
 
-public class DBCnnectionState extends State {
+public class DBConnectionState extends State {
     private PropertiesManager props;
 
     @Override

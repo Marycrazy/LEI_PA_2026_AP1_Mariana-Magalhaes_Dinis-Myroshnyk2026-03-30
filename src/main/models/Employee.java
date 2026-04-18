@@ -95,4 +95,47 @@ public  class Employee extends RegistrableUser {
 
         return employee;
     }
+
+    public static Employee edit(Employee employee) {
+        InputField[] fields = {
+            new InputField("Name", null),
+            new InputField("Password", null),
+            new InputField("Email", "fn::check_email"),
+            new InputField("Phone", "fn::check_phone"),
+            new InputField("Address", null),
+            new InputField("Specialization", "fn::check_specialization"),
+        };
+
+        Map<String, String> inputMap = new HashMap<>();
+        inputMap.put("Name", employee.getName());
+        inputMap.put("Username", employee.getUsername());
+        inputMap.put("Password", employee.getPassword());
+        inputMap.put("Email", employee.getEmail());
+        inputMap.put("NIF", employee.getNif());
+        inputMap.put("Phone", employee.getPhone());
+        inputMap.put("Address", employee.getAddress());
+        inputMap.put("Specialization", employee.getSpecialization());
+
+        for (InputField field : fields) {
+            String current = inputMap.get(field.field());
+            String input = (field.dbFunc() == null)
+                ? Input.getInput(field.field(), current, true)
+                : Input.getInput(field.field(), field.dbFunc(), current);
+            if (input == null) return null;
+            inputMap.put(field.field(), input);
+        }
+
+        return (Employee) new Employee.Builder()
+            .setSpecialization(inputMap.get("Specialization"))
+            .setNif(inputMap.get("NIF"))
+            .setPhone(inputMap.get("Phone"))
+            .setAddress(inputMap.get("Address"))
+            .setId(employee.getUserId())
+            .setName(inputMap.get("Name"))
+            .setUsername(inputMap.get("Username"))
+            .setPassword(inputMap.get("Password"))
+            .setEmail(inputMap.get("Email"))
+            .setStatus(employee.getStatus())
+            .build();
+    }
 }

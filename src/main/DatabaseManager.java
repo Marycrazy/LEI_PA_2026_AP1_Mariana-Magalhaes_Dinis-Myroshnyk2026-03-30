@@ -11,6 +11,7 @@ import com.surrealdb.Transaction;
 import com.surrealdb.Value;
 import com.surrealdb.signin.RootCredential;
 
+import main.enums.UserStatus;
 import main.models.Admin;
 import main.models.Client;
 import main.models.Employee;
@@ -141,55 +142,15 @@ public class DatabaseManager {
     }
 
     public User fetchUser(String username) {
-        String query = "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data FROM user WHERE username = $username";
-
+        String query =  "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
+                        "FROM user WHERE username = $username";
         try {
             Response response = driver.queryBind(query, Map.of("username", username));
-            var objData = response.take(0).getArray().get(0).getObject();
-            String userType = objData.get("type").getString();
-
-            if (userType.equals("ADMIN")) {
-                return new Admin.Builder()
-                    .setId(objData.get("id").getRecordId())
-                    .setName(objData.get("name").getString())
-                    .setUsername(objData.get("username").getString())
-                    .setPassword(objData.get("password").getString())
-                    .setEmail(objData.get("email").getString())
-                    .build();
-            }
-
-            var regData = objData.get("reg_data").getObject();
-            var userData = objData.get("user_data").getArray().get(0).getObject();
-
-            if (userType.equals("EMPLOYEE")) {
-                return new Employee.Builder()
-                    .setSpecialization(userData.get("specialization").getString())
-                    .setNif(regData.get("nif").getString())
-                    .setPhone(regData.get("phone").getString())
-                    .setAddress(regData.get("address").getString())
-                    .setId(objData.get("id").getRecordId())
-                    .setName(objData.get("name").getString())
-                    .setUsername(objData.get("username").getString())
-                    .setPassword(objData.get("password").getString())
-                    .setEmail(objData.get("email").getString())
-                    .build();
-            }
-            else if (userType.equals("CLIENT")) {
-                return new Client.Builder()
-                    .setScale(userData.get("scale").getString())
-                    .setSector(userData.get("sector").getString())
-                    .setNif(regData.get("nif").getString())
-                    .setPhone(regData.get("phone").getString())
-                    .setAddress(regData.get("address").getString())
-                    .setId(objData.get("id").getRecordId())
-                    .setName(objData.get("name").getString())
-                    .setUsername(objData.get("username").getString())
-                    .setPassword(objData.get("password").getString())
-                    .setEmail(objData.get("email").getString())
-                    .build();
-            }
-        } catch (Exception e) { System.err.println("Error fetching user: " + e.getMessage()); }
-        return null;
+            return userFromValue(response.take(0).getArray().get(0));
+        } catch (Exception e) {
+            System.err.println("Error fetching user: " + e.getMessage());
+            return null;
+        }
     }
 
     public void sendNotification(NotificationRequest request) {
@@ -229,5 +190,113 @@ public class DatabaseManager {
 
     public void markAsRead(User user, Notification notification) {
         driver.relate(user.getUserId(), "viewed_notification", notification.getId());
+    }
+
+    public List<User> getUsers(String search, String sortBy, boolean asc, User currUser) {
+        String query =  "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
+                        "FROM user WHERE id != $currentId ";
+
+        if (!search.isEmpty()) query += "AND (string::contains(string::lowercase(name), string::lowercase($search)) " +
+                                        "OR string::contains(string::lowercase(username), string::lowercase($search))) ";
+
+        query += "ORDER BY " + sortBy + " " + (asc ? "ASC" : "DESC");
+
+        Response response = driver.queryBind(query, Map.of(
+            "currentId", currUser.getUserId(),
+            "search", search
+        ));
+
+        List<User> users = new ArrayList<>();
+        for (Value element : response.take(0).getArray()) {
+            User u = userFromValue(element);
+            if (u != null) users.add(u);
+        }
+        return users;
+    }
+
+    private User userFromValue(Value element) {
+        var obj = element.getObject();
+        String type = obj.get("type").getString();
+
+        if (type.equals("ADMIN")) {
+            return new Admin.Builder()
+                .setId(obj.get("id").getRecordId())
+                .setName(obj.get("name").getString())
+                .setUsername(obj.get("username").getString())
+                .setPassword(obj.get("password").getString())
+                .setEmail(obj.get("email").getString())
+                .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
+                .build();
+        }
+
+        var regData  = obj.get("reg_data").getObject();
+        var userData = obj.get("user_data").getArray().get(0).getObject();
+
+        if (type.equals("EMPLOYEE")) {
+            return new Employee.Builder()
+                .setSpecialization(userData.get("specialization").getString())
+                .setStartDate(userData.get("start_date").getDateTime())
+                .setNif(regData.get("nif").getString())
+                .setPhone(regData.get("phone").getString())
+                .setAddress(regData.get("address").getString())
+                .setId(obj.get("id").getRecordId())
+                .setName(obj.get("name").getString())
+                .setUsername(obj.get("username").getString())
+                .setPassword(obj.get("password").getString())
+                .setEmail(obj.get("email").getString())
+                .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
+                .build();
+        }
+
+        return new Client.Builder()
+            .setScale(userData.get("scale").getString())
+            .setSector(userData.get("sector").getString())
+            .setNif(regData.get("nif").getString())
+            .setPhone(regData.get("phone").getString())
+            .setAddress(regData.get("address").getString())
+            .setId(obj.get("id").getRecordId())
+            .setName(obj.get("name").getString())
+            .setUsername(obj.get("username").getString())
+            .setPassword(obj.get("password").getString())
+            .setEmail(obj.get("email").getString())
+            .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
+            .build();
+    }
+
+    public void setUserStatus(User user, String status) {
+        String query = "UPDATE user SET status = $status WHERE id = $id";
+        driver.queryBind(query, Map.of("id", user.getUserId(), "status", status));
+    }
+
+    public void updateUser(User user) {
+        Transaction transaction = driver.beginTransaction();
+
+        try {
+            transaction.query("UPDATE " + user.getUserId() + " MERGE   " + toSQL(User.toMap(user)));
+
+            if (user instanceof RegistrableUser reg) {
+                transaction.query(
+                    "UPDATE (SELECT VALUE ->is_a.out FROM " + user.getUserId() + ")[0] MERGE " + toSQL(RegistrableUser.toMap(reg))
+                );
+
+                if (reg instanceof Employee employee) {
+                    transaction.query(
+                        "UPDATE (SELECT VALUE ->is_a.out->of_type.out FROM " + user.getUserId() + ")[0][0] MERGE " + toSQL(Employee.toMap(employee))
+                    );
+                } else if (reg instanceof Client client) {
+                    transaction.query(
+                        "UPDATE (SELECT VALUE ->is_a.out->of_type.out FROM " + user.getUserId() + ")[0][0] MERGE " + toSQL(Client.toMap(client))
+                    );
+                }
+            }
+
+            transaction.commit();
+            System.out.println("Updating user...");
+        } catch (Exception e) {
+            transaction.cancel();
+            System.err.println("Error updating user: " + e.getMessage());
+            System.err.println("Transaction rolled back.");
+            throw e;
+        }
     }
 }

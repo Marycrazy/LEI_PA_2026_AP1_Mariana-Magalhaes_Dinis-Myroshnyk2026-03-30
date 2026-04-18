@@ -1,6 +1,6 @@
 package main;
 
-import main.states.DBCnnectionState;
+import main.states.DBConnectionState;
 import main.states.FirstInitState;
 import main.states.State;
 import main.states.SignInUp;
@@ -9,7 +9,7 @@ public class App {
     public static void main(String[] args) {
         try {
             if(!DatabaseManager.getInstance().isConfigured()) {
-                State.start(new DBCnnectionState());
+                State.start(new DBConnectionState());
                 return;
             }
             DatabaseManager.getInstance().connect();
