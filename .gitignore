@@ -1,4 +1,5 @@
 bin/
 lib/surrealdb-2.0.0.jar
 codigo.md
+codigo.pdf
 db/config.properties
