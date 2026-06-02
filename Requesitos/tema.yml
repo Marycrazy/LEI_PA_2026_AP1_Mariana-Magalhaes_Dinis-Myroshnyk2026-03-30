@@ -1,5 +1,0 @@
-extends: default
-role:
-  highlight:
-    font-color: #000000
-    background-color: #FFFF00
