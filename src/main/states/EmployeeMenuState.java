@@ -24,7 +24,7 @@ public class EmployeeMenuState extends State {
         String input = Input.getScanner().nextLine();
 
         switch (input) {
-            case "1": PressKey.enter(); break;
+            case "1": new ListRepairsState().enter();break;
             case "2": new NotificationMenuState().enter(); break;
             case "3": new EditUserState(user).enter(); break;
             case "0": this.back(); this.back(); break;

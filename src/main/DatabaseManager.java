@@ -1,5 +1,6 @@
 package main;
 
+import java.lang.classfile.instruction.SwitchCase;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -440,10 +441,10 @@ public class DatabaseManager {
         return repairFromValue(response.take(0).getArray().get(0));
     }
 
-    public void rejectRepair(Repair repair, String reason) {
+    public void rejectRepair(Repair repair, String reason, String state) {
         Transaction transaction = driver.beginTransaction();
         try {
-            transaction.query("UPDATE " + repair.getId() + " SET state = 'REJECTED'" +
+            transaction.query("UPDATE " + repair.getId() + " SET state = '" + state + "'" +
                 (reason.isEmpty() ? "" : ", observations = '" + reason + "'"));
             transaction.commit();
         } catch (Exception e) {
@@ -454,12 +455,12 @@ public class DatabaseManager {
 
         try {
             RecordId clientId = driver.queryBind(
-                "(SELECT VALUE <-requested.in FROM repair WHERE id = $id)[0][0]",
+                "(SELECT VALUE <-user_repair.in FROM repair WHERE id = $id)[0][0]",
                 Map.of("id", repair.getId())
             ).take(0).getArray().get(0).getRecordId();
 
             sendNotification(new NotificationRequest(
-                "Your repair request " + repair.getRepairCode() + " was rejected." +
+                (messageForStateRepair(repair, state) != null ? messageForStateRepair(repair, state) : "Your repair request was rejected")+
                 (reason.isEmpty() ? "" : " Reason: " + reason),
                 clientId));
         } catch (Exception e) {
@@ -469,6 +470,28 @@ public class DatabaseManager {
 
     public void updateRepairState(RecordId repairId, String state) {
         driver.query("UPDATE " + repairId + " SET state = '" + state + "'");
+        try {
+            Value result = driver.queryBind(
+                "SELECT VALUE <-user_repair.in FROM repair WHERE id = $id",
+                Map.of("id", repairId)
+            ).take(0).getArray().get(0); // isto é um array de RecordIds
+
+            RecordId clientId = result.getArray().get(0).getRecordId(); // desempacota o array interior
+            Repair repair = fetchRepair(repairId);
+            String message = messageForStateRepair(repair, state);
+            if (message != null) sendNotification(new NotificationRequest(message, clientId));
+        } catch (Exception e) {
+            System.err.println("Failed to notify client: " + e.getMessage());
+        }
+    }
+
+    private String messageForStateRepair(Repair repair, String state) {
+        return switch (state) {
+                case "REJECTED_BY_ADMIN"->"Your repair request " + repair.getRepairCode() + " was rejected by the admin.";
+                case "REJECTED_BY_EMPLOYEE"->"Your repair request " + repair.getRepairCode() + " was rejected by the assigned employee.";
+                case "COMPLETED"->"Your repair request " + repair.getRepairCode() + " was marked as completed.";
+                default->null;
+            };
     }
 
     public List<Employee> getAvailableEmployees(RecordId repairId) {

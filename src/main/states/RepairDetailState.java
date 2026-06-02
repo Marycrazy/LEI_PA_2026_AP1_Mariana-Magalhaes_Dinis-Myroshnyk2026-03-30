@@ -3,6 +3,7 @@ package main.states;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import main.DatabaseManager;
+import main.enums.RepairStatus;
 import main.models.Repair;
 import main.utils.Input;
 import main.utils.PressKey;
@@ -40,14 +41,26 @@ public class RepairDetailState extends DetailState<Repair> {
     @Override
     protected Map<String, String> getActions() {
         Map<String, String> actions = new LinkedHashMap<>();
-        switch (subject.getState()) {
-            case "PENDING":
-                actions.put("A", "Approve and assign employee");
-                actions.put("R", "Reject");
-                break;
-            case "COMPLETED":
-                actions.put("X", "Archive");
-                break;
+        if (user.getType().equals("ADMIN")) {
+            switch (subject.getState()) {
+                case "PENDING":
+                    actions.put("A", "Approve and assign employee");
+                    actions.put("R", "Reject");
+                    break;
+                case "COMPLETED":
+                    actions.put("X", "Archive");
+                    break;
+            }
+        }else if (user.getType().equals("EMPLOYEE")) {
+            switch (subject.getState()) {
+                case "ACCEPTED":
+                    actions.put("A", "Accept and start repair");
+                    actions.put("R", "Reject");
+                    break;
+                case "IN_PROGRESS":
+                    actions.put("C", "Mark as completed");
+                    break;
+            }
         }
         return actions;
     }
@@ -55,8 +68,11 @@ public class RepairDetailState extends DetailState<Repair> {
     @Override
     protected void handleAction(String key) {
         switch (key) {
-            case "A": next(new AssignEmployeeState(subject)); break;
+            case "A": if (user.getType().equals("ADMIN")) next(new AssignEmployeeState(subject));
+                else accept_by_employee();
+                break;
             case "R": reject(); break;
+            case "C": mark_as_completed(); break;
             case "X": archive(); break;
         }
     }
@@ -65,7 +81,10 @@ public class RepairDetailState extends DetailState<Repair> {
         System.out.print("Reason (optional): ");
         String reason = Input.getScanner().nextLine().trim();
         try {
-            DatabaseManager.getInstance().rejectRepair(subject, reason);
+            if(user.getType().equals("ADMIN"))
+                DatabaseManager.getInstance().rejectRepair(subject, reason, RepairStatus.REJECTED_BY_ADMIN.toString());
+            else
+                DatabaseManager.getInstance().rejectRepair(subject, reason, RepairStatus.REJECTED_BY_EMPLOYEE.toString());
             System.out.println("Repair rejected.");
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());
@@ -76,7 +95,7 @@ public class RepairDetailState extends DetailState<Repair> {
 
     private void archive() {
         try {
-            DatabaseManager.getInstance().updateRepairState(subject.getId(), "ARCHIVED");
+            DatabaseManager.getInstance().updateRepairState(subject.getId(), RepairStatus.ARCHIVED.toString());
             System.out.println("Repair archived.");
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());
@@ -84,4 +103,27 @@ public class RepairDetailState extends DetailState<Repair> {
         PressKey.enter();
         back();
     }
+
+    private void accept_by_employee() {
+        try {
+            DatabaseManager.getInstance().updateRepairState(subject.getId(), RepairStatus.IN_PROGRESS.toString());
+            System.out.println("Repair accepted. You can start working on it.");
+        } catch (Exception e) {
+            System.err.println("Failed: " + e.getMessage());
+        }
+        PressKey.enter();
+        back();
+    }
+
+    private void mark_as_completed() {
+        try {
+            DatabaseManager.getInstance().updateRepairState(subject.getId(), RepairStatus.COMPLETED.toString());
+            System.out.println("Repair marked as completed. Awaiting admin approval.");
+        } catch (Exception e) {
+            System.err.println("Failed: " + e.getMessage());
+        }
+        PressKey.enter();
+        back();
+    }
+        
 }
