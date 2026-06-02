@@ -473,8 +473,9 @@ public class DatabaseManager {
     }
 
     public List<Employee> getAvailableEmployees(RecordId repairId) {
-        String query = "SELECT * FROM user WHERE type = 'EMPLOYEE' AND status = 'ACTIVE' " +
-                    "AND id NOTINSIDE (SELECT VALUE in FROM rejected_repair WHERE out = $repairId)";
+        String query = "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
+                        "FROM user WHERE type = 'EMPLOYEE' AND status = 'ACTIVE' " +
+                        "AND id NOTINSIDE (SELECT VALUE in FROM user_repair WHERE out = $repairId)";
         Response response = driver.queryBind(query, Map.of("repairId", repairId));
         List<Employee> list = new ArrayList<>();
         for (Value element : response.take(0).getArray())
