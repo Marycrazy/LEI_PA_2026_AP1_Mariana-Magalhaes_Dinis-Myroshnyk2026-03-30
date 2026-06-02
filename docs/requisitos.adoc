@@ -1,5 +1,5 @@
-= Requisitos
-:pdf-themesdir: Requesitos
+= Tabelas de Requisitos
+:pdf-themesdir: requisitos
 :pdf-theme: tema.yml
 :source-highlighter: rouge
 :rouge-style: github
@@ -8,6 +8,9 @@
 <<<
 
 [cols="^1,^3,^1"]
+
+
+== Proj 1
 
 |===
 | *Requisito* | *Descrição*	| *Estado*
@@ -28,8 +31,8 @@
 | R15 | Gestor pode inativar ou ativar conta de utilizador | Feito
 | R16 | Utilizador pode solicitar remoção da conta, com notificação ao gestor | Feito
 | R17 | Sem utilizadores criados, aplicação solicita credenciais para criar conta gestor | Feito
-| R18 | Após autenticação apresenta "Bem-vindo [nome utilizador]" | Feito
-| R19 | Ao encerrar apresenta "Adeus [nome utilizador]" | Feito
+| [.line-through]#R18# | [.line-through]#Após autenticação apresenta "Bem-vindo [nome utilizador]"# | [.line-through]#Feito#
+| [.line-through]#R19# | [.line-through]#Ao encerrar apresenta "Adeus [nome utilizador]"# | [.line-through]#Feito#
 | R20 | Sistema gere equipamentos e reparações | Feito
 | R21 | Equipamento pode ter várias reparações ao longo do tempo | Feito
 | R22 | Cliente submete equipamentos e pedidos de reparação | Feito
@@ -44,9 +47,9 @@
 | R31 | Número de reparação composto por número sequencial seguido da data no formato AAAAMMDDHHMMSS | Feito
 | R32 | Reparação inclui data de criação, data de fim, tempo decorrido, custo, estado, observações e listagem de testes | Feito
 | R33 | Testes de operacionalidade caracterizados por designação, descrição e data | Feito
-| R34 | Peças usadas na reparação devem ser registadas e quantidade decrementada | Feito
-| R35 | Peça caracterizada por código interno, designação, fabricante e quantidade | Feito
-| R36 | Gestor responsável pela inserção e atualização de peças | Feito
+| [.line-through]#R34# | [.line-through]#Peças usadas na reparação devem ser registadas e quantidade decrementada# | [.line-through]#Feito#
+| [.line-through]#R35# | [.line-through]#Peça caracterizada por código interno, designação, fabricante e quantidade# | [.line-through]#Feito#
+| [.line-through]#R36# | [.line-through]#Gestor responsável pela inserção e atualização de peças# | [.line-through]#Feito#
 | R37 | Processo inicia quando cliente solicita reparação | Feito
 | R38 | Gestor notificado, aprova ou rejeita pedido e atribui funcionário | Feito
 | R39 | Funcionário notificado quando processo atribuído, pode aceitar ou rejeitar | Feito
@@ -82,9 +85,9 @@
 | R69 | Acesso a base de dados relacional para gerir toda a informação | Feito
 | R70 | Acesso restringido com credenciais armazenadas na base de dados | Feito
 | R71 | Parâmetros de acesso à base de dados armazenados em ficheiro Properties | Feito
-| R72 | Interface em modo texto para interação com o utilizador | Feito
-| R73 | Calcular e apresentar tempo de execução da aplicação | Feito
-| R74 | Manter informação genérica do sistema como data da última execução e número de execuções | Feito
+| [.line-through]#R72# | [.line-through]#Interface em modo texto para interação com o utilizador# | [.line-through]#Feito#
+| [.line-through]#R73# | [.line-through]#Calcular e apresentar tempo de execução da aplicação# | [.line-through]#Feito#
+| [.line-through]#R74# | [.line-through]#Manter informação genérica do sistema como data da última execução e número de execuções# | [.line-through]#Feito#
 | R75 | Registo de ações (log) dos utilizadores armazenado na base de dados | Feito
 | R76 | Listar conteúdo do log através da aplicação | 
 | R77 | Pesquisar registos por utilizador no log | 
@@ -92,4 +95,25 @@
 | R79 | Implementar estruturas de armazenamento otimizadas | Feito
 | R80 | Validar todas as leituras de dados do utilizador | Feito
 | R81 | Apresentar mensagens informativas ao utilizador	Feito
+|===
+
+
+== Proj 2
+
+|===
+| *Requisito* | *Descrição*	| *Estado*
+| G1 | Completar e corrigir a aplicação iniciada no projeto 1 | 
+| G2 | Utilizadores possuem foto, que pode ser inserida ou alterada em qualquer momento. Caso não seja definida, deve existir uma imagem por defeito no sistema | 
+| G3 | No momento de registo deve ser enviado um email a informar que o registo foi realizado | 
+| G4 | Em todos os formulários de inserção de dados deve existir um campo adicional (JTextField ou JAreaField) para inserir observações ou comentários | 
+| G5 | Após autenticação, deve surgir uma caixa de diálogo ou zona em realce na janela principal a indicar a existência de notificações, caso existam | 
+| G6 | Deve ser possível imprimir um extrato das ações de um processo (datas e utilizadores que realizaram ações) | 
+| G7 | Todas as listagens devem incluir barras de deslocamento | 
+| G8 | Toda a interação com o utilizador deve ser realizada através de interfaces gráficas (JavaSwing / JavaFX). As interfaces devem ser intuitivas, limpas e claras | 
+| G9 | Devem ser usadas componentes gráficas adequadas à informação: JList para listagens simples, JTable para listagens estruturadas | 
+| G10 | Os formulários devem possuir tooltips de ajuda sobre cada elemento da interface | 
+| [.line-through]#G11# | [.line-through]#Não é necessário apresentar graficamente mensagens de boas-vindas, de encerramento, nem estatísticas de utilização# | N/A
+| [.line-through]#G12# | [.line-through]#Não é necessário implementar graficamente a manipulação de peças e testes# | N/A
+| [.line-through]#G13# | [.line-through]#Não é necessário gestores poderem criar outros gestores através da interface gráfica# | N/A
+| G14 | O código deve estar harmonizado: a mesma funcionalidade deve estar implementada de forma idêntica e consistente ao longo de todo o código | 
 |===
