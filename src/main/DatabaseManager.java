@@ -4,7 +4,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -474,7 +473,7 @@ public class DatabaseManager {
 
     public List<Employee> getAvailableEmployees(RecordId repairId) {
         String query = "SELECT * FROM user WHERE type = 'EMPLOYEE' AND status = 'ACTIVE' " +
-                    "AND id NOTINSIDE (SELECT VALUE in FROM rejected_repair WHERE out = $repairId)";
+                    "AND id NOTINSIDE (SELECT VALUE in FROM user_repair WHERE out = $repairId)";
         Response response = driver.queryBind(query, Map.of("repairId", repairId));
         List<Employee> list = new ArrayList<>();
         for (Value element : response.take(0).getArray())
