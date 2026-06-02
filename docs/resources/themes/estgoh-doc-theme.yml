@@ -5,7 +5,7 @@ color:
   accent: 2980B9
   code: 2C3E50
   code-comment: 7F8C8D
-  table-header: ECf0F1
+  table-header: ECF0F1
   border: DAE0E5
   page-background: FFFFFF
   block-background: F8F9FA
@@ -48,7 +48,7 @@ font:
 page:
   size: A4
   layout: portrait
-  margin: [1in, 1in, 1in, 1in]
+  margin: [1.4in, 1in, 1in, 1in]
   background_color: $color-page-background
   numbering:
     start-at: toc
@@ -196,6 +196,11 @@ table:
 link:
   font-color: $color-accent
   text-decoration: underline
+
+
+# Lists
+list:
+  indent: 20pt
 
 
 # Table of Contents
