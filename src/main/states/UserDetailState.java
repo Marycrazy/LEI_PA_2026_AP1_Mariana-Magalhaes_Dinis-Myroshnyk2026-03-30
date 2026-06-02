@@ -72,10 +72,10 @@ public class UserDetailState extends DetailState<User> {
     @Override
     protected void handleAction(String key) {
         switch (key) {
-            case "A": DatabaseManager.getInstance().setUserStatus(user, UserStatus.ACTIVE.toString()); back(); break;
-            case "R": DatabaseManager.getInstance().setUserStatus(user, UserStatus.REJECTED.toString()); back(); break;
-            case "D": DatabaseManager.getInstance().setUserStatus(user, UserStatus.INACTIVE.toString()); back(); break;
-            case "E": DatabaseManager.getInstance().setUserStatus(user, UserStatus.ACTIVE.toString()); back(); break;
+            case "A": DatabaseManager.getInstance().setUserStatus(subject, UserStatus.ACTIVE.toString()); back(); break;
+            case "R": DatabaseManager.getInstance().setUserStatus(subject, UserStatus.REJECTED.toString()); back(); break;
+            case "D": DatabaseManager.getInstance().setUserStatus(subject, UserStatus.INACTIVE.toString()); back(); break;
+            case "E": DatabaseManager.getInstance().setUserStatus(subject, UserStatus.ACTIVE.toString()); back(); break;
             case "P": next(new EditUserState(subject)); break;
         }
     }
