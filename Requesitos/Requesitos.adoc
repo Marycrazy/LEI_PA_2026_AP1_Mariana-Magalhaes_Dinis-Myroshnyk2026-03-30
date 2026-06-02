@@ -1,0 +1,95 @@
+= Requisitos
+:pdf-themesdir: Requesitos
+:pdf-theme: tema.yml
+:source-highlighter: rouge
+:rouge-style: github
+:hardbreaks:
+
+<<<
+
+[cols="^1,^3,^1"]
+
+|===
+| *Requisito* | *Descrição*	| *Estado*
+| R1 | Permitir aos utilizadores registarem-se e autenticarem-se na aplicação | Feito
+| R2 | Permitir o acesso por 3 tipos de utilizadores: gestores, clientes e funcionários | Feito
+| R3 | Utilizadores caracterizados por nome, username, password, estado, email e tipo | Feito
+| R4 | Username e email devem ser únicos | Feito
+| R5 | Email deve apresentar formato válido | Feito
+| R6 | Cada utilizador apenas pode alterar a sua própria informação | Feito
+| R7 | Gestores podem visualizar e alterar dados de todos os utilizadores e criar gestores | Feito
+| R8 | Clientes e funcionários têm NIF, contacto telefónico e morada. Funcionários têm especialização e data de início. Clientes têm sector e escalão | Feito
+| R9 | NIF deve ser único e possuir 9 dígitos | Feito
+| R10 | Contacto telefónico deve possuir 9 dígitos e iniciar por 9, 2 ou 3 | Feito
+| R11 | Clientes e funcionários registam-se na plataforma. Gestores são criados por outros gestores | Feito
+| R12 | Pedidos de registo devem ser notificados aos gestores | Feito
+| R13 | Gestores aprovam ou rejeitam pedidos de registo | Feito
+| R14 | Conta reprovada ou não analisada apresenta mensagem informativa | Feito
+| R15 | Gestor pode inativar ou ativar conta de utilizador | Feito
+| R16 | Utilizador pode solicitar remoção da conta, com notificação ao gestor | Feito
+| R17 | Sem utilizadores criados, aplicação solicita credenciais para criar conta gestor | Feito
+| R18 | Após autenticação apresenta "Bem-vindo [nome utilizador]" | Feito
+| R19 | Ao encerrar apresenta "Adeus [nome utilizador]" | Feito
+| R20 | Sistema gere equipamentos e reparações | Feito
+| R21 | Equipamento pode ter várias reparações ao longo do tempo | Feito
+| R22 | Cliente submete equipamentos e pedidos de reparação | Feito
+| R23 | Cada cliente pode ter vários equipamentos, cada equipamento pertence a um cliente | Feito
+| R24 | Cada reparação está associada a um equipamento e realizada por um funcionário | Feito
+| R25 | Clientes submetem pedidos de reparação | Feito
+| R26 | Pedido de reparação aprovado pelo gestor, que atribui funcionário | Feito
+| R27 | Funcionários gerem o processo de reparação | 
+| R28 | Equipamento caracterizado por marca, modelo, SKU, data de fabrico, lote, data de submissão e data de reparação | Feito
+| R29 | SKU único, valor aleatório entre 1 e 1 000 000 | Feito
+| R30 | Verificar duplicação de código de modelo ao inserir equipamento | Feito
+| R31 | Número de reparação composto por número sequencial seguido da data no formato AAAAMMDDHHMMSS | Feito
+| R32 | Reparação inclui data de criação, data de fim, tempo decorrido, custo, estado, observações e listagem de testes | Feito
+| R33 | Testes de operacionalidade caracterizados por designação, descrição e data | Feito
+| R34 | Peças usadas na reparação devem ser registadas e quantidade decrementada | Feito
+| R35 | Peça caracterizada por código interno, designação, fabricante e quantidade | Feito
+| R36 | Gestor responsável pela inserção e atualização de peças | Feito
+| R37 | Processo inicia quando cliente solicita reparação | Feito
+| R38 | Gestor notificado, aprova ou rejeita pedido e atribui funcionário | Feito
+| R39 | Funcionário notificado quando processo atribuído, pode aceitar ou rejeitar | Feito
+| R40 | Se funcionário recusar, gestor notificado e designa outro funcionário | 
+| R41 | Funcionário inicia e encerra reparação, não tem de ser numa única sessão | 
+| R42 | Após finalizado pelo funcionário, gestor arquiva o processo | 
+| R43 | Cliente e gestor podem consultar estado da reparação | [.highlight]#Parcial (só o gestor)#
+| R44 | Gestor notificado quando novo utilizador se regista | Feito
+| R45 | Gestor notificado quando existe pedido de reparação | Feito
+| R46 | Cliente notificado se pedido de reparação rejeitado | Feito
+| R47 | Funcionário notificado quando pedido atribuído | Feito
+| R48 | Gestor notificado se funcionário rejeitar pedido | 
+| R49 | Cliente notificado quando processo de reparação finalizado | Feito
+| R50 | Gestor notificado quando processo passa 10 dias sem ser finalizado | 
+| R51 | Gestor notificado quando quantidade de peça inferior a 10 unidades | 
+| R52 | Listagens por páginas de 10 registos | Feito
+| R53 | Listagens permitem ordenar ascendente ou descendente | Feito
+| R54 | Listagens permitem pesquisas para filtrar resultados | Feito
+| R55 | Pesquisa avançada, apresenta registos com termo parcial | Feito
+| R56 | Gestores listam todos os utilizadores ordenados por nome | Feito
+| R57 | Gestores pesquisam utilizadores por nome, username ou tipo | Feito
+| R58 | Gestores listam pedidos de reparação ordenados por data ou número | [.highlight]#Parcial (so ordenados por numero a data não está)#
+| R59 | Gestores listam pedidos de reparação não finalizados | Feito
+| R60 | Gestores pesquisam pedidos por número, estado ou cliente | Feito
+| R61 | Gestores pesquisam pedidos por intervalo temporal | 
+| R62 | Gestores pesquisam equipamentos por marca ou código | Feito
+| R63 | Clientes listam os seus pedidos ordenados por data ou número | 
+| R64 | Clientes pesquisam os seus pedidos por número ou estado | 
+| R65 | Clientes listam os seus equipamentos ordenados por marca ou código | 
+| R66 | Clientes pesquisam os seus equipamentos por marca ou código | 
+| R67 | Funcionários listam os seus pedidos ordenados por data ou número | 
+| R68 | Funcionários pesquisam os seus pedidos por número ou estado | 
+| R69 | Acesso a base de dados relacional para gerir toda a informação | Feito
+| R70 | Acesso restringido com credenciais armazenadas na base de dados | Feito
+| R71 | Parâmetros de acesso à base de dados armazenados em ficheiro Properties | Feito
+| R72 | Interface em modo texto para interação com o utilizador | Feito
+| R73 | Calcular e apresentar tempo de execução da aplicação | Feito
+| R74 | Manter informação genérica do sistema como data da última execução e número de execuções | Feito
+| R75 | Registo de ações (log) dos utilizadores armazenado na base de dados | Feito
+| R76 | Listar conteúdo do log através da aplicação | 
+| R77 | Pesquisar registos por utilizador no log | 
+| R78 | Aplicação estruturada segundo paradigma Orientado a Objetos em Java | Feito
+| R79 | Implementar estruturas de armazenamento otimizadas | Feito
+| R80 | Validar todas as leituras de dados do utilizador | Feito
+| R81 | Apresentar mensagens informativas ao utilizador	Feito
+|===
