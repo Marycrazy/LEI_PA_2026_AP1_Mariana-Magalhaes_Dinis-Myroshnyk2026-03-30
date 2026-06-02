@@ -1,9 +1,7 @@
-.vscode/
+**/.vscode/
 bin/
 lib/surrealdb-2.0.0.jar
 db/config.properties
 
-docs/.vscode/
+**/*.lock
 docs/ruby/.gems
-docs/ruby/Gemfile.lock
-docs/flake.lock
