@@ -46,7 +46,7 @@ public class SignIn extends State {
                 State.user = employee;
                 System.out.println("Welcome " + employee.getName() + "!");
                 PressKey.enter();
-                // new EmployeeMenuState().enter();
+                new EmployeeMenuState().enter();
             }
             else if (type.equals("CLIENT")) {
                 Client client = (Client) DatabaseManager.getInstance().fetchUser(username);
