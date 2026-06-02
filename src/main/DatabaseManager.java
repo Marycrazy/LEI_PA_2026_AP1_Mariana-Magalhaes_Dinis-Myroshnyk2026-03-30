@@ -418,13 +418,13 @@ public class DatabaseManager {
         }
     }
 
-    public List<Repair> getRepairs(String search, String filterState, boolean asc) {
+    public List<Repair> getRepairs(String search, String filterState, boolean asc, User user) {
         String query = "SELECT * FROM repair WHERE 1 = 1 ";
+        if(!user.getType().equals("ADMIN")) query += " AND id IN (SELECT VALUE out FROM user_repair WHERE in = " + user.getUserId() + ")";
         if (!filterState.isEmpty()) query += "AND state = '" + filterState + "' ";
         if (!search.isEmpty())
             query += "AND (repair_code ~ $search OR (<-requested.in.name)[0] ~ $search) ";
         query += "ORDER BY start_date " + (asc ? "ASC" : "DESC");
-
         Response response = search.isEmpty()
             ? driver.query(query)
             : driver.queryBind(query, Map.of("search", search));

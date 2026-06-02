@@ -25,7 +25,7 @@ public class ClientMenuState extends State {
 
         switch (input) {
             case "1": next(new EquipmentMenuState()); break;
-            case "2": break;
+            case "2": new ListRepairsState().enter(); break;
             case "3": new NotificationMenuState().enter(); break;
             case "4": new EditUserState(user); break;
             case "0": this.back(); this.back(); break;

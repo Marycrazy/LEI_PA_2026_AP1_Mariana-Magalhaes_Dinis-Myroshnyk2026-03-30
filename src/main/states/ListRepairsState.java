@@ -17,7 +17,7 @@ public class ListRepairsState extends ListState<Repair> {
 
     @Override
     protected List<Repair> fetchItems() {
-        return DatabaseManager.getInstance().getRepairs(search, filterState, asc);
+        return DatabaseManager.getInstance().getRepairs(search, filterState, asc, user);
     }
 
     @Override
@@ -39,7 +39,8 @@ public class ListRepairsState extends ListState<Repair> {
     protected boolean handleExtra(String input) {
         switch (input) {
             case "F":
-                System.out.print("Search (code or client): ");
+                if(!user.getType().equals("ADMIN")) System.out.print("Search (code or client): ");
+                else System.out.print("Search for code: ");
                 search = Input.getScanner().nextLine().trim();
                 return true;
             case "S":
