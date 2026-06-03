@@ -54,15 +54,15 @@ António Dinis Myroshnyk (nº 2021157297); Mariana Pais Jorge Magalhães (nº 20
 | R37 | Processo inicia quando cliente solicita reparação | Feito
 | R38 | Gestor notificado, aprova ou rejeita pedido e atribui funcionário | Feito
 | R39 | Funcionário notificado quando processo atribuído, pode aceitar ou rejeitar | Feito
-| R40 | Se funcionário recusar, gestor notificado e designa outro funcionário |
-| R41 | Funcionário inicia e encerra reparação, não tem de ser numa única sessão |
-| R42 | Após finalizado pelo funcionário, gestor arquiva o processo |
-| R43 | Cliente e gestor podem consultar estado da reparação | [.highlight]#Parcial (só o gestor)#
+| R40 | Se funcionário recusar, gestor notificado e designa outro funcionário | Feito
+| R41 | Funcionário inicia e encerra reparação, não tem de ser numa única sessão | Feito
+| R42 | Após finalizado pelo funcionário, gestor arquiva o processo | Feito
+| R43 | Cliente e gestor podem consultar estado da reparação | Feito
 | R44 | Gestor notificado quando novo utilizador se regista | Feito
 | R45 | Gestor notificado quando existe pedido de reparação | Feito
 | R46 | Cliente notificado se pedido de reparação rejeitado | Feito
 | R47 | Funcionário notificado quando pedido atribuído | Feito
-| R48 | Gestor notificado se funcionário rejeitar pedido |
+| R48 | Gestor notificado se funcionário rejeitar pedido | Feito
 | R49 | Cliente notificado quando processo de reparação finalizado | Feito
 | R50 | Gestor notificado quando processo passa 10 dias sem ser finalizado |
 | [.line-through]#R51# | [.line-through]#Não é necessário listar peças menores que 10 unidades# | [.line-through]#N/A#
@@ -72,7 +72,7 @@ António Dinis Myroshnyk (nº 2021157297); Mariana Pais Jorge Magalhães (nº 20
 | R55 | Pesquisa avançada, apresenta registos com termo parcial | Feito
 | R56 | Gestores listam todos os utilizadores ordenados por nome | Feito
 | R57 | Gestores pesquisam utilizadores por nome, username ou tipo | Feito
-| R58 | Gestores listam pedidos de reparação ordenados por data ou número | [.highlight]#Parcial (so ordenados por numero a data não está)#
+| R58 | Gestores listam pedidos de reparação ordenados por data ou número | Feito
 | R59 | Gestores listam pedidos de reparação não finalizados | Feito
 | R60 | Gestores pesquisam pedidos por número, estado ou cliente | Feito
 | R61 | Gestores pesquisam pedidos por intervalo temporal |

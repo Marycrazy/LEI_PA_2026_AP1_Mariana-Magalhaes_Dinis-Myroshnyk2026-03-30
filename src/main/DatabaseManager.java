@@ -18,6 +18,7 @@ import com.surrealdb.Value;
 import com.surrealdb.signin.RootCredential;
 
 import main.enums.UserStatus;
+import main.enums.UserType;
 import main.models.Admin;
 import main.models.Client;
 import main.models.Employee;
@@ -441,54 +442,35 @@ public class DatabaseManager {
         return repairFromValue(response.take(0).getArray().get(0));
     }
 
-    public void rejectRepair(Repair repair, String reason, String state) {
-        Transaction transaction = driver.beginTransaction();
+    public void updateRepairState(Repair repair, String reason, String state) {
+        String query = "UPDATE " + repair.getId() + " SET state = '" + state + "'";
         try {
-            transaction.query("UPDATE " + repair.getId() + " SET state = '" + state + "'" +
-                (reason.isEmpty() ? "" : ", observations = '" + reason + "'"));
-            transaction.commit();
-        } catch (Exception e) {
-            transaction.cancel();
-            System.err.println("Error rejecting repair: " + e.getMessage());
-            throw e;
-        }
+            if (state.equals("REJECTED_BY_ADMIN") || state.equals("REJECTED_BY_EMPLOYEE"))
+                query += ", observations = '" + reason + "'";
 
-        try {
-            RecordId clientId = driver.queryBind(
-                "(SELECT VALUE <-user_repair.in FROM repair WHERE id = $id)[0][0]",
-                Map.of("id", repair.getId())
-            ).take(0).getArray().get(0).getRecordId();
+            driver.query(query);
 
-            sendNotification(new NotificationRequest(
-                (messageForStateRepair(repair, state) != null ? messageForStateRepair(repair, state) : "Your repair request was rejected")+
-                (reason.isEmpty() ? "" : " Reason: " + reason),
-                clientId));
+            String message = messageForStateRepair(repair, state, reason);
+            if (message == null) return;
+
+            if (state.equals("REJECTED_BY_EMPLOYEE")) {
+                sendNotification(new NotificationRequest(message, UserType.ADMIN.toString()));
+            }
+            else{
+                RecordId clientId = driver.query(
+                    "(SELECT VALUE in FROM user_repair WHERE out = " + repair.getId() + " AND in.type = 'CLIENT')[0]"
+                ).take(0).getRecordId();
+                sendNotification(new NotificationRequest(message, clientId));
+            }
         } catch (Exception e) {
             System.err.println("Failed to notify client: " + e.getMessage());
         }
     }
 
-    public void updateRepairState(RecordId repairId, String state) {
-        driver.query("UPDATE " + repairId + " SET state = '" + state + "'");
-        try {
-            Value result = driver.queryBind(
-                "SELECT VALUE <-user_repair.in FROM repair WHERE id = $id",
-                Map.of("id", repairId)
-            ).take(0).getArray().get(0); // isto é um array de RecordIds
-
-            RecordId clientId = result.getArray().get(0).getRecordId(); // desempacota o array interior
-            Repair repair = fetchRepair(repairId);
-            String message = messageForStateRepair(repair, state);
-            if (message != null) sendNotification(new NotificationRequest(message, clientId));
-        } catch (Exception e) {
-            System.err.println("Failed to notify client: " + e.getMessage());
-        }
-    }
-
-    private String messageForStateRepair(Repair repair, String state) {
+    private String messageForStateRepair(Repair repair, String state, String reason) {
         return switch (state) {
-                case "REJECTED_BY_ADMIN"->"Your repair request " + repair.getRepairCode() + " was rejected by the admin.";
-                case "REJECTED_BY_EMPLOYEE"->"Your repair request " + repair.getRepairCode() + " was rejected by the assigned employee.";
+                case "REJECTED_BY_ADMIN"->"Your repair request " + repair.getRepairCode() + " was rejected by the admin."+ (reason.isEmpty() ? "" : " Reason: " + reason);
+                case "REJECTED_BY_EMPLOYEE"->"Your repair request " + repair.getRepairCode() + " was rejected by the assigned employee." + (reason.isEmpty() ? "" : " Reason: " + reason);
                 case "COMPLETED"->"Your repair request " + repair.getRepairCode() + " was marked as completed.";
                 default->null;
             };

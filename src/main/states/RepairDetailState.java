@@ -50,6 +50,11 @@ public class RepairDetailState extends DetailState<Repair> {
                 case "COMPLETED":
                     actions.put("X", "Archive");
                     break;
+                case "REJECTED_BY_EMPLOYEE":
+                    actions.put("A", "Assign another employee");
+                    actions.put("R", "Reject");
+                    break;
+
             }
         }else if (user.getType().equals("EMPLOYEE")) {
             switch (subject.getState()) {
@@ -82,9 +87,9 @@ public class RepairDetailState extends DetailState<Repair> {
         String reason = Input.getScanner().nextLine().trim();
         try {
             if(user.getType().equals("ADMIN"))
-                DatabaseManager.getInstance().rejectRepair(subject, reason, RepairStatus.REJECTED_BY_ADMIN.toString());
+                DatabaseManager.getInstance().updateRepairState(subject, reason, RepairStatus.REJECTED_BY_ADMIN.toString());
             else
-                DatabaseManager.getInstance().rejectRepair(subject, reason, RepairStatus.REJECTED_BY_EMPLOYEE.toString());
+                DatabaseManager.getInstance().updateRepairState(subject, reason, RepairStatus.REJECTED_BY_EMPLOYEE.toString());
             System.out.println("Repair rejected.");
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());
@@ -95,7 +100,7 @@ public class RepairDetailState extends DetailState<Repair> {
 
     private void archive() {
         try {
-            DatabaseManager.getInstance().updateRepairState(subject.getId(), RepairStatus.ARCHIVED.toString());
+            DatabaseManager.getInstance().updateRepairState(subject, "", RepairStatus.ARCHIVED.toString());
             System.out.println("Repair archived.");
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());
@@ -106,7 +111,7 @@ public class RepairDetailState extends DetailState<Repair> {
 
     private void accept_by_employee() {
         try {
-            DatabaseManager.getInstance().updateRepairState(subject.getId(), RepairStatus.IN_PROGRESS.toString());
+            DatabaseManager.getInstance().updateRepairState(subject, "", RepairStatus.IN_PROGRESS.toString());
             System.out.println("Repair accepted. You can start working on it.");
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());
@@ -117,7 +122,7 @@ public class RepairDetailState extends DetailState<Repair> {
 
     private void mark_as_completed() {
         try {
-            DatabaseManager.getInstance().updateRepairState(subject.getId(), RepairStatus.COMPLETED.toString());
+            DatabaseManager.getInstance().updateRepairState(subject, "", RepairStatus.COMPLETED.toString());
             System.out.println("Repair marked as completed. Awaiting admin approval.");
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());
