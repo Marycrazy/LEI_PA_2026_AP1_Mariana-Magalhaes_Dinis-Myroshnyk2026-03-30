@@ -1,15 +1,20 @@
 package main.states;
 
+import jakarta.mail.MessagingException;
 import main.DatabaseManager;
 import main.DatabaseManager.NotificationRequest;
+import main.PropertiesManager;
 import main.enums.UserType;
 import main.models.Client;
 import main.models.Employee;
 import main.models.User;
+import main.utils.Email;
 import main.utils.Input;
 import main.utils.PressKey;
 
 public class SignUp extends State {
+    private PropertiesManager props = new PropertiesManager();
+
     @Override
     public void render() {
         System.out.println("--- SIGN UP ---");
@@ -45,6 +50,9 @@ public class SignUp extends State {
 
         DatabaseManager.getInstance().saveUser(user);
         DatabaseManager.getInstance().sendNotification(new NotificationRequest("User '" + user.getUsername() + "' awaiting approval", UserType.ADMIN.toString()));
+        try { Email.sendRegistrationEmail(props, user.getEmail(), user.getName()); } catch (MessagingException e) {
+            System.err.println("Error sending email: " + e.getMessage());
+        }
         System.out.println(type.substring(0, 1).toUpperCase() + type.substring(1) + " created!");
         System.out.println("Please wait while an admin reviews your request...");
         PressKey.enter();

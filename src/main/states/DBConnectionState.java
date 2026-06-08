@@ -31,12 +31,21 @@ public class DBConnectionState extends State {
         String password = Input.getInput("Password");
         if (password == null) System.exit(0);
 
+        String email = Input.getInput("Email");
+        if (email == null) System.exit(0);
+
+        String key = Input.getInput("Key");
+        if (key == null) System.exit(0);
+
         props = new PropertiesManager();
         props.setProperty("connect", connect);
         props.setProperty("namespace", namespace);
         props.setProperty("database", database);
         props.setProperty("username", username);
         props.setProperty("password", password);
+
+        props.setProperty("email", email);
+        props.setProperty("key", key);
 
         if (props.saveFile()) {
             System.out.println("Database configuration saved successfully.");
