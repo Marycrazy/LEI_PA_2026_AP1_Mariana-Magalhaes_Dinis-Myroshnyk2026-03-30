@@ -74,11 +74,11 @@ public class RepairDetailState extends DetailState<Repair> {
     protected void handleAction(String key) {
         switch (key) {
             case "A": if (user.getType().equals("ADMIN")) next(new AssignEmployeeState(subject));
-                else accept_by_employee();
+                else updateState(RepairStatus.IN_PROGRESS);
                 break;
             case "R": reject(); break;
-            case "C": mark_as_completed(); break;
-            case "X": archive(); break;
+            case "C": updateState(RepairStatus.COMPLETED); break;
+            case "X": updateState(RepairStatus.ARCHIVED); break;
         }
     }
 
@@ -98,32 +98,17 @@ public class RepairDetailState extends DetailState<Repair> {
         back();
     }
 
-    private void archive() {
+    private void updateState(RepairStatus newState) {
         try {
-            DatabaseManager.getInstance().updateRepairState(subject, "", RepairStatus.ARCHIVED.toString());
-            System.out.println("Repair archived.");
-        } catch (Exception e) {
-            System.err.println("Failed: " + e.getMessage());
-        }
-        PressKey.enter();
-        back();
-    }
-
-    private void accept_by_employee() {
-        try {
-            DatabaseManager.getInstance().updateRepairState(subject, "", RepairStatus.IN_PROGRESS.toString());
-            System.out.println("Repair accepted. You can start working on it.");
-        } catch (Exception e) {
-            System.err.println("Failed: " + e.getMessage());
-        }
-        PressKey.enter();
-        back();
-    }
-
-    private void mark_as_completed() {
-        try {
-            DatabaseManager.getInstance().updateRepairState(subject, "", RepairStatus.COMPLETED.toString());
-            System.out.println("Repair marked as completed. Awaiting admin approval.");
+            if(newState == RepairStatus.IN_PROGRESS){
+                DatabaseManager.getInstance().updateRepairState(subject, "", newState.toString());
+                System.out.println("Repair accepted. You can start working on it.");}
+            else if (newState == RepairStatus.COMPLETED){
+                DatabaseManager.getInstance().updateRepairState(subject, "", newState.toString());
+                System.out.println("Repair marked as completed. Awaiting admin approval.");}
+            else if (newState == RepairStatus.ARCHIVED){
+                DatabaseManager.getInstance().updateRepairState(subject, "", newState.toString());
+                System.out.println("Repair archived.");}
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());
         }
