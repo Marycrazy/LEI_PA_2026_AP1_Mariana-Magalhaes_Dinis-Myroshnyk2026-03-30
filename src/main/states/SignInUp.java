@@ -18,8 +18,8 @@ public class SignInUp extends State {
         String input = Input.getScanner().nextLine();
 
         switch (input) {
-            case "1": new SignIn().enter(); break;
-            case "2": new SignUp().enter(); break;
+            // case "1": new SignIn().enter(); break;
+            // case "2": new SignUp().enter(); break;
             case "0": System.exit(0); break;
             default:
                 System.out.println("Invalid option!");

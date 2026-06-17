@@ -1,32 +1,92 @@
 package main.states;
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+
+import java.awt.*;
+
 import main.DatabaseManager;
 import main.DatabaseManager.UserCredentials;
-import main.models.Admin;
-import main.models.Client;
-import main.models.Employee;
-import main.utils.Input;
-import main.utils.PressKey;
+// import main.models.Admin;
+// import main.models.Client;
+// import main.models.Employee;
 
-public class SignIn extends State {
-    @Override
-    public void render() {
-        System.out.println("--- SIGN IN ---");
+public class SignIn extends JFrame {
+    private JTextField txtUsername;
+    private JPasswordField txtPassword;
+    
+
+    public SignIn(){
+        setTitle("Sign In");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(350, 250);
+        setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(
+            BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "Login",
+                TitledBorder.LEFT,
+                TitledBorder.TOP
+            )
+        );
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+      // Username
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(new JLabel("Username"), gbc);
+
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtUsername = new JTextField(15);
+        panel.add(txtUsername, gbc);
+
+        // Password
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        panel.add(new JLabel("Password"), gbc);
+
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtPassword = new JPasswordField(15);
+        panel.add(txtPassword, gbc);
+
+        // Painel dos botões
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        JButton btnExit = new JButton("Exit");
+        btnExit.addActionListener(e -> System.exit(0));
+
+        JButton btnLogin = new JButton("Login");
+        btnLogin.addActionListener(e -> handleInput());
+
+        buttons.add(btnExit);
+        buttons.add(btnLogin);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(buttons, gbc);
+
+        add(panel, BorderLayout.CENTER);
+
+        setVisible(true);
     }
 
-    @Override
+
     public void handleInput() {
-        String username, password;
+        String username = txtUsername.getText();
+        String password = new String(txtPassword.getPassword());
 
-        username = Input.getInput("Username");
-        if (username == null) {
-            this.back();
-            return;
-        }
-
-        password = Input.getInput("Password");
-        if (password == null) {
-            this.back();
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -34,48 +94,41 @@ public class SignIn extends State {
             if (!isActiveUser(username)) return;
 
             String type = DatabaseManager.getInstance().getType(username);
+
             if (type.equals("ADMIN")) {
-                Admin admin = (Admin) DatabaseManager.getInstance().fetchUser(username);
-                State.user = admin;
-                System.out.println("Welcome " + admin.getName() + "!");
-                PressKey.enter();
-                new AdminMenuState().enter();
-            }
-            else if (type.equals("EMPLOYEE")) {
-                Employee employee = (Employee) DatabaseManager.getInstance().fetchUser(username);
-                State.user = employee;
-                System.out.println("Welcome " + employee.getName() + "!");
-                PressKey.enter();
-                new EmployeeMenuState().enter();
-            }
-            else if (type.equals("CLIENT")) {
-                Client client = (Client) DatabaseManager.getInstance().fetchUser(username);
-                State.user = client;
-                System.out.println("Welcome " + client.getName() + "!");
-                PressKey.enter();
-                new ClientMenuState().enter();
+                // Admin admin = (Admin) DatabaseManager.getInstance().fetchUser(username);
+                // // abre o menu do admin
+                // // new AdminMenuFrame(admin).setVisible(true);
+                dispose();
+            } else if (type.equals("EMPLOYEE")) {
+                // Employee employee = (Employee) DatabaseManager.getInstance().fetchUser(username);
+                // new EmployeeMenuFrame(employee).setVisible(true);
+                dispose();
+            } else if (type.equals("CLIENT")) {
+                // Client client = (Client) DatabaseManager.getInstance().fetchUser(username);
+                // new ClientMenuFrame(client).setVisible(true);
+                dispose();
             }
         } else {
-            System.out.println("Invalid username or password!");
-            PressKey.enter();
+            JOptionPane.showMessageDialog(this, "Invalid username or password.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private boolean isActiveUser(String username) {
         String status = DatabaseManager.getInstance().getUserStatus(username);
 
-        if (status.equals("PENDING")) {
-            System.out.println("Your account is pending approval. Please wait for an admin to approve it.");
-            PressKey.enter();
-            return false;
-        } else if (status.equals("REJECTED")) {
-            System.out.println("Your account has been rejected. Please contact an admin for more information.");
-            PressKey.enter();
-            return false;
-        } else if (status.equals("INACTIVE")) {
-            System.out.println("Your account has been deactivated. Please contact an admin for more information.");
-            PressKey.enter();
-            return false;
-        } else return true;
+        switch (status) {
+            case "PENDING":
+                JOptionPane.showMessageDialog(this, "Your account is pending approval.", "Pending", JOptionPane.WARNING_MESSAGE);
+                return false;
+            case "REJECTED":
+                JOptionPane.showMessageDialog(this, "Your account has been rejected.", "Rejected", JOptionPane.ERROR_MESSAGE);
+                return false;
+            case "INACTIVE":
+                JOptionPane.showMessageDialog(this, "Your account has been deactivated.", "Inactive", JOptionPane.ERROR_MESSAGE);
+                return false;
+            default:
+                return true;
+        }
     }
 }
