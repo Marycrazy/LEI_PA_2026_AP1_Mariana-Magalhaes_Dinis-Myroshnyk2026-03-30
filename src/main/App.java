@@ -10,6 +10,11 @@ import main.states.SignInUp;
 
 public class App {
     public static void main(String[] args) {
+        //https://onyxwizard.medium.com/jvm-shutdown-hooks-in-java-graceful-cleanup-when-things-go-wrong-afa5e5ff8377
+        // Após o encerramento da app fecha a conexão com o banco de dados
+        Runtime.getRuntime().addShutdownHook(
+            new Thread(() -> DatabaseManager.getInstance().close())
+        );
         SwingUtilities.invokeLater(() -> {
             try {
                 if(!DatabaseManager.getInstance().isConfigured()) {
@@ -22,10 +27,6 @@ public class App {
             } catch (Exception e) {
                 System.err.println("Operation failed! Network error or invalid database configuration.");
                 e.printStackTrace();
-            }
-            finally {
-                DatabaseManager.getInstance().close();
-                State.exit();
             }
         });
     }

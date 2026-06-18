@@ -75,6 +75,24 @@ public class SignIn extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(buttons, gbc);
 
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        JLabel lblRegister = new JLabel(
+            "<html><a href=''>Don't have an account? Register</a></html>",
+            SwingConstants.CENTER
+        );
+        lblRegister.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        lblRegister.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                new SignUp().setVisible(true);
+                dispose();
+            }
+        });
+
+        panel.add(lblRegister, gbc);
+
         add(panel, BorderLayout.CENTER);
 
         setVisible(true);
@@ -96,15 +114,18 @@ public class SignIn extends JFrame {
             String type = DatabaseManager.getInstance().getType(username);
 
             if (type.equals("ADMIN")) {
+                JOptionPane.showMessageDialog(this, "The user is type Admin", "type", JOptionPane.INFORMATION_MESSAGE);
                 // Admin admin = (Admin) DatabaseManager.getInstance().fetchUser(username);
                 // // abre o menu do admin
                 // // new AdminMenuFrame(admin).setVisible(true);
                 dispose();
             } else if (type.equals("EMPLOYEE")) {
+                JOptionPane.showMessageDialog(this, "The user is type Employee", "type", JOptionPane.INFORMATION_MESSAGE);
                 // Employee employee = (Employee) DatabaseManager.getInstance().fetchUser(username);
                 // new EmployeeMenuFrame(employee).setVisible(true);
                 dispose();
             } else if (type.equals("CLIENT")) {
+                JOptionPane.showMessageDialog(this, "The user is type Client", "type", JOptionPane.INFORMATION_MESSAGE);
                 // Client client = (Client) DatabaseManager.getInstance().fetchUser(username);
                 // new ClientMenuFrame(client).setVisible(true);
                 dispose();
