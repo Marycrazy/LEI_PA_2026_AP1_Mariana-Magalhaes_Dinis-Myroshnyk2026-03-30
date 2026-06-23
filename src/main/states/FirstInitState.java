@@ -21,6 +21,6 @@ public class FirstInitState extends State {
         System.out.println("Admin user created!");
         PressKey.enter();
 
-        new AdminMenuState().enter();
+        new AdminMenuState(admin).setVisible(true);
     }
 }

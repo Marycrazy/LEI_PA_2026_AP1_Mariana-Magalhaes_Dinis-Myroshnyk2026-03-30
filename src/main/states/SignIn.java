@@ -7,7 +7,7 @@ import java.awt.*;
 
 import main.DatabaseManager;
 import main.DatabaseManager.UserCredentials;
-// import main.models.Admin;
+import main.models.Admin;
 // import main.models.Client;
 // import main.models.Employee;
 
@@ -114,10 +114,10 @@ public class SignIn extends JFrame {
             String type = DatabaseManager.getInstance().getType(username);
 
             if (type.equals("ADMIN")) {
-                JOptionPane.showMessageDialog(this, "The user is type Admin", "type", JOptionPane.INFORMATION_MESSAGE);
-                // Admin admin = (Admin) DatabaseManager.getInstance().fetchUser(username);
-                // // abre o menu do admin
-                // // new AdminMenuFrame(admin).setVisible(true);
+                // JOptionPane.showMessageDialog(this, "The user is type Admin", "type", JOptionPane.INFORMATION_MESSAGE);
+                Admin admin = (Admin) DatabaseManager.getInstance().fetchUser(username);
+                // abre o menu do admin
+                new AdminMenuState(admin).setVisible(true);
                 dispose();
             } else if (type.equals("EMPLOYEE")) {
                 JOptionPane.showMessageDialog(this, "The user is type Employee", "type", JOptionPane.INFORMATION_MESSAGE);
