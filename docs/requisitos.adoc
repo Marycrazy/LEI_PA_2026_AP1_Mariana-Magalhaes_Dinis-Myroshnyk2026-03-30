@@ -107,7 +107,7 @@ António Dinis Myroshnyk (nº 2021157297); Mariana Pais Jorge Magalhães (nº 20
 | *Requisito* | *Descrição*	| *Estado*
 | G1 | Completar e corrigir a aplicação iniciada no projeto 1 |
 | G2 | Utilizadores possuem foto, que pode ser inserida ou alterada em qualquer momento. Caso não seja definida, deve existir uma imagem por defeito no sistema |
-| G3 | No momento de registo deve ser enviado um email a informar que o registo foi realizado |
+| G3 | No momento de registo deve ser enviado um email a informar que o registo foi realizado | Feito
 | G4 | Em todos os formulários de inserção de dados deve existir um campo adicional (JTextField ou JAreaField) para inserir observações ou comentários |
 | G5 | Após autenticação, deve surgir uma caixa de diálogo ou zona em realce na janela principal a indicar a existência de notificações, caso existam |
 | G6 | Deve ser possível imprimir um extrato das ações de um processo (datas e utilizadores que realizaram ações) |
