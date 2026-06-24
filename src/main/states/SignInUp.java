@@ -1,30 +1,27 @@
 package main.states;
 
-import main.utils.Input;
-import main.utils.PressKey;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.BoxLayout;
 
 public class SignInUp extends State {
     @Override
-    public void render() {
-        System.out.println("--- SIGN IN / SIGN UP ---");
-        System.out.println("1. Sign in");
-        System.out.println("2. Sign up");
-        System.out.println("0. Exit");
-        System.out.print("Choice: ");
-    }
+    public JPanel buildView() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-    @Override
-    public void handleInput() {
-        String input = Input.getScanner().nextLine();
+        JButton signInBtn = new JButton("Sign in");
+        // signInBtn.addActionListener(e -> next(new SignIn())); // TODO: uncomment when SignIn is implemented
 
-        switch (input) {
-            case "1": new SignIn().enter(); break;
-            case "2": new SignUp().enter(); break;
-            case "0": System.exit(0); break;
-            default:
-                System.out.println("Invalid option!");
-                PressKey.enter();
-                break;
-        }
+        JButton signUpBtn = new JButton("Sign up");
+        // signUpBtn.addActionListener(e -> next(new SignUp())); // TODO: uncomment when SignUp is implemented
+
+        JButton exitBtn = new JButton("Exit");
+        exitBtn.addActionListener(e -> State.exit());
+
+        panel.add(signInBtn);
+        panel.add(signUpBtn);
+        panel.add(exitBtn);
+        return panel;
     }
 }

@@ -1,33 +1,45 @@
 package main.states;
 
 import java.util.Stack;
-
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import main.models.User;
-import main.utils.Clear;
 
 public abstract class State {
     protected static User user;
     private static Stack<State> stateStack = new Stack<>();
-    private static boolean isRunning = true;
+    private static JFrame frame;
 
-    public void enter() { stateStack.push(this); }
+    public static void init(JFrame f) {
+        frame = f;
+    }
 
-    public static void start(State initState) {
-        stateStack.push(initState);
-        while (isRunning && !stateStack.isEmpty()) {
-            Clear.screen();
-            State curr = stateStack.peek();
-            curr.render();
-            curr.handleInput();
+    public abstract JPanel buildView();
+
+    public void enter() {
+        stateStack.push(this);
+        show();
+    }
+
+    public void next(State nextState) {
+        nextState.enter();
+    }
+
+    public void back() {
+        if (!stateStack.isEmpty()) stateStack.pop();
+        if (!stateStack.isEmpty()) {
+            stateStack.peek().show();
         }
     }
 
-    public void next(State nextState) { stateStack.push(nextState); }
+    private void show() {
+        frame.setContentPane(buildView());
+        frame.revalidate();
+        frame.repaint();
+    }
 
-    public void back() { if (!stateStack.isEmpty()) stateStack.pop(); }
-
-    public static void exit() { isRunning = false; }
-
-    public abstract void render();
-    public abstract void handleInput();
+    public static void exit() {
+        frame.dispose();
+        System.exit(0);
+    }
 }
