@@ -35,27 +35,10 @@ public class SignIn extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
-      // Username
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(new JLabel("Username"), gbc);
+        int row = 0;
 
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtUsername = new JTextField(15);
-        panel.add(txtUsername, gbc);
-
-        // Password
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Password"), gbc);
-
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtPassword = new JPasswordField(15);
-        panel.add(txtPassword, gbc);
+        row = addField(panel, gbc, "Username:", txtUsername = new JTextField(15), 0);
+        row = addField(panel, gbc, "Password:", txtPassword = new JPasswordField(15), row);
 
         // Painel dos botões
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -69,14 +52,12 @@ public class SignIn extends JFrame {
         buttons.add(btnExit);
         buttons.add(btnLogin);
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridx = 0; gbc.gridy = row++;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(buttons, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridx = 0; gbc.gridy = row++;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         JLabel lblRegister = new JLabel(
@@ -151,5 +132,15 @@ public class SignIn extends JFrame {
             default:
                 return true;
         }
+    }
+
+    private int addField(JPanel panel, GridBagConstraints gbc, String label, JComponent field, int row) {
+        gbc.gridx = 0; gbc.gridy = row;
+        panel.add(new JLabel(label), gbc);
+
+        gbc.gridx = 1;
+        panel.add(field, gbc);
+
+        return row + 1;
     }
 }

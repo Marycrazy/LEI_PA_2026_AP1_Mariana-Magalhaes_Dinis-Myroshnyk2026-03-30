@@ -58,29 +58,8 @@ public class Client extends RegistrableUser {
         );
     }
 
-    public static Client create() {
-        InputField[] fields = {
-            new InputField("Name", null),
-            new InputField("Username", "fn::check_username"),
-            new InputField("Password", null),
-            new InputField("Email", "fn::check_email"),
-            new InputField("NIF", "fn::check_nif"),
-            new InputField("Phone", "fn::check_phone"),
-            new InputField("Address", null),
-            new InputField("Sector", null),
-            new InputField("Scale", "fn::check_scale")
-        };
-
-        Map<String, String> inputMap = new HashMap<>();
-
-        for (InputField field : fields) {
-            String input = (field.dbFunc() == null)
-                ? Input.getInput(field.field())
-                : Input.getInput(field.field(), field.dbFunc());
-            if (input == null) return null;
-            inputMap.put(field.field(), input);
-        }
-
+    public static Client create(Map<String, String> inputMap) {
+        
         Client client = (Client) new Client.Builder()
             .setSector(inputMap.get("Sector"))
             .setScale(inputMap.get("Scale"))
@@ -91,6 +70,7 @@ public class Client extends RegistrableUser {
             .setUsername(inputMap.get("Username"))
             .setPassword(inputMap.get("Password"))
             .setEmail(inputMap.get("Email"))
+            .setImage(inputMap.get("Image"))
             .build();
 
         return client;

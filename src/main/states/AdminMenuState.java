@@ -31,7 +31,7 @@ public class AdminMenuState extends JFrame  {
 
         setLayout(new BorderLayout());
 
-        // --- painel do topo ---
+        // painel do topo
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
@@ -42,7 +42,7 @@ public class AdminMenuState extends JFrame  {
         topPanel.add(lblUser, BorderLayout.WEST);
         topPanel.add(lblNotifications, BorderLayout.EAST);
 
-        // --- painel dos botões ---
+        // painel dos botões
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 40, 10, 40));
 
@@ -72,7 +72,6 @@ public class AdminMenuState extends JFrame  {
             centerPanel.add(buttons[i], gbc);
         }
 
-        // --- juntar à janela ---
         add(topPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
 

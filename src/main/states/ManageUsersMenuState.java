@@ -18,7 +18,7 @@ public class ManageUsersMenuState extends State {
         String input = Input.getScanner().nextLine();
 
         switch (input) {
-            case "1": new AdminCreateUserState().enter(); break;
+            // case "1": new AdminCreateUserState().enter(); break;
             case "2": new ListUsersState().enter(); break;
             case "0": this.back(); break;
             default:
