@@ -6,7 +6,7 @@ import javax.swing.SwingUtilities;
 // import main.states.DBConnectionState;
 // import main.states.FirstInitState;
 import main.states.State;
-import main.states.SignInUp;
+import main.states.SignInState;
 
 public class App {
     public static void main(String[] args) {
@@ -41,6 +41,6 @@ public class App {
         if (!DatabaseManager.getInstance().hasAdmin())
             // new FirstInitState().enter(); // TODO: uncomment
             return; //TODO: remove this line when uncommenting the above
-        else new SignInUp().enter();
+        else new SignInState().enter();
     }
 }
