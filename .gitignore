@@ -5,3 +5,5 @@ db/config.properties
 
 **/*.lock
 docs/ruby/.gems
+
+shell.nix

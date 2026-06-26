@@ -22,17 +22,4 @@ public class Validator {
             return false;
         } else return true;
     }
-
-    // no Validator.java -- versão que devolve o erro em vez de o imprimir
-    public static String getError(String value) {
-        if (isEmpty(value)) return "Field cannot be empty.";
-        return null; // null significa sem erro
-    }
-
-    public static String getError(String dbFunc, String value) {
-        if (isEmpty(value)) return "Field cannot be empty.";
-        if (!DatabaseManager.getInstance().validateField(new DbFunctionCall(dbFunc, value)))
-            return "Invalid value for this field.";
-        return null;
-    }
 }

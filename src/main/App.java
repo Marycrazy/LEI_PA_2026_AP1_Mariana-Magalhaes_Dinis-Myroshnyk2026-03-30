@@ -1,38 +1,45 @@
 package main;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import main.states.DBConnectionState;
 import main.states.FirstInitState;
-import main.states.SignIn;
 import main.states.State;
-import main.states.SignInUp;
+import main.states.SignInState;
 
 public class App {
     public static void main(String[] args) {
-        //https://onyxwizard.medium.com/jvm-shutdown-hooks-in-java-graceful-cleanup-when-things-go-wrong-afa5e5ff8377
-        // Após o encerramento da app fecha a conexão com o banco de dados
         Runtime.getRuntime().addShutdownHook(
             new Thread(() -> DatabaseManager.getInstance().close())
         );
-        SwingUtilities.invokeLater(() -> {
-            try {
-                if(!DatabaseManager.getInstance().isConfigured()) {
-                    State.start(new DBConnectionState());
-                    return;
-                }
-                DatabaseManager.getInstance().connect();
-                System.out.println("Connected to the database!");
-                sysInit();
-            } catch (Exception e) {
-                System.err.println("Operation failed! Network error or invalid database configuration.");
-                e.printStackTrace();
+
+        SwingUtilities.invokeLater(App::start);
+    }
+
+    private static void start() {
+        JFrame frame = new JFrame("Repair Management System");
+        frame.setSize(600, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+        State.init(frame);
+
+        try {
+            if (!DatabaseManager.getInstance().isConfigured()) {
+                new DBConnectionState().enter();
+                return;
             }
-        });
+            DatabaseManager.getInstance().connect();
+            sysInit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void sysInit() {
-        if (!DatabaseManager.getInstance().hasAdmin()) State.start(new FirstInitState());
-        else new SignIn().setVisible(true);
+        if (!DatabaseManager.getInstance().hasAdmin())
+            new FirstInitState().enter();
+        else new SignInState().enter();
     }
 }

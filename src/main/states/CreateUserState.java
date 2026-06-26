@@ -1,252 +1,238 @@
 package main.states;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComponent;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import java.awt.*;
+import jakarta.mail.MessagingException;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.ZonedDateTime;
 
+import main.DatabaseManager;
+import main.DatabaseManager.NotificationRequest;
+import main.PropertiesManager;
 import main.enums.UserStatus;
+import main.enums.UserType;
 import main.models.Admin;
 import main.models.Client;
 import main.models.Employee;
 import main.models.User;
-import main.utils.Validator;
-
-import jakarta.mail.MessagingException;
-import main.DatabaseManager;
-import main.DatabaseManager.NotificationRequest;
-import main.PropertiesManager;
-import main.enums.UserType;
 import main.utils.Email;
+import main.utils.FormBuilder;
+import main.utils.FormValidator;
+import main.utils.ImageUploader;
 
-
-
-
-
-public class CreateUserState extends JFrame {
+public class CreateUserState extends State {
+    private final String type;
+    private final String status;
     private PropertiesManager props = new PropertiesManager();
-    // campos comuns
-    private JTextField txtName, txtUsername, txtEmail;
-    private JPasswordField txtPassword;
-    private JLabel lblPhoto;
-    private File selectedPhoto;
+    private User createdUser;
 
-    // campos específicos Employee
-    private JTextField txtSpecialization;
+    // common fields
+    private JTextField txtName = new JTextField(textFieldCols);
+    private JTextField txtUsername = new JTextField(textFieldCols);
+    private JPasswordField txtPassword = new JPasswordField(textFieldCols);
+    private JTextField txtEmail = new JTextField(textFieldCols);
 
-    // campos específicos Client
-    private JTextField txtSector, txtScale;
+    // registrable-only fields (employee/client)
+    private JTextField txtNif = new JTextField(textFieldCols);
+    private JTextField txtPhone = new JTextField(textFieldCols);
+    private JTextField txtAddress = new JTextField(textFieldCols);
 
-    // campos comuns a Employee e Client (RegistrableUser)
-    private JTextField txtNif, txtPhone, txtAddress;
+    // client-only
+    private JTextField txtSector = new JTextField(textFieldCols);
+    private JComboBox<String> cmbScale = new JComboBox<>(new String[]{"A", "B", "C", "D"});
 
-    private String type; // "EMPLOYEE" ou "CLIENT"
-    
+    // employee-only
+    private JComboBox<Integer> cmbSpecialization = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
+
+    // image
+    private File selectedImage;
+    private JLabel lblImageStatus = new JLabel("No image selected");
+
     public CreateUserState(String type, String status) {
-        setTitle("Create User " + type);
         this.type = type;
-        setSize(400, 500);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.status = status;
+    }
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        
-        // --- painel principal com scroll ---
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+    @Override
+    public JPanel buildView() {
+        FormBuilder form = new FormBuilder("Create " + capitalize(type))
+            .addField("Name:", txtName)
+            .addField("Username:", txtUsername)
+            .addField("Password:", txtPassword)
+            .addField("Email:", txtEmail);
 
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1;
-        int row = 0;
-
-         // --- campos comuns ---
-        row = addField(formPanel, gbc, "Name:", txtName = new JTextField(15), row);
-        row = addField(formPanel, gbc, "Username:", txtUsername = new JTextField(15), row);
-        row = addField(formPanel, gbc, "Password:", txtPassword = new JPasswordField(15), row);
-        row = addField(formPanel, gbc, "Email:", txtEmail = new JTextField(15), row);
-
-        // --- foto ---
-        gbc.gridx = 0; gbc.gridy = row; gbc.gridwidth = 1;
-        formPanel.add(new JLabel("Photo:"), gbc);
-
-        lblPhoto = new JLabel("No photo selected");
-        lblPhoto.setToolTipText("Click to select a photo");
-        JButton btnPhoto = new JButton("Choose Photo");
-        btnPhoto.addActionListener(e -> choosePhoto());
-
-        gbc.gridx = 1; gbc.gridy = row++;
-        formPanel.add(btnPhoto, gbc);
-
-        gbc.gridx = 0; gbc.gridy = row++;
-        gbc.gridwidth = 2;
-        formPanel.add(lblPhoto, gbc);
-        gbc.gridwidth = 1;
-
-        // --- campos do RegistrableUser (Employee e Client) ---
-        if (!type.equalsIgnoreCase("ADMIN")) {
-            row = addField(formPanel, gbc, "NIF:", txtNif = new JTextField(15), row);
-            row = addField(formPanel, gbc, "Phone:", txtPhone = new JTextField(15), row);
-            row = addField(formPanel, gbc, "Address:", txtAddress = new JTextField(15), row);
+        if (!type.equals("admin")) {
+            form.addField("NIF:", txtNif)
+                .addField("Phone:", txtPhone)
+                .addField("Address:", txtAddress);
         }
 
-        // --- campos específicos ---
-        if (type.equalsIgnoreCase("EMPLOYEE")) {
-            row = addField(formPanel, gbc, "Specialization:", txtSpecialization = new JTextField(15), row);
-        } else if (type.equalsIgnoreCase("CLIENT")) {
-            row = addField(formPanel, gbc, "Sector:", txtSector = new JTextField(15), row);
-            row = addField(formPanel, gbc, "Scale:", txtScale = new JTextField(15), row);
+        if (type.equals("client")) {
+            form.addField("Sector:", txtSector)
+                .addField("Scale:", cmbScale);
+        } else if (type.equals("employee")) {
+            form.addField("Specialization:", cmbSpecialization);
         }
 
-        // --- scroll para o caso do formulário ser grande ---
-        JScrollPane scroll = new JScrollPane(formPanel);
-        scroll.setBorder(null);
+        JButton btnChooseImage = new JButton("Choose photo...");
+        btnChooseImage.addActionListener(e -> chooseImage());
+        form.addRow(btnChooseImage, lblImageStatus);
 
-        // --- botões em baixo ---
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnBack = new JButton("Back");
-        JButton btnSubmit = new JButton("Submit");
+        btnBack.addActionListener(e -> back());
 
-        btnBack.addActionListener(e -> {
-            new SignUp().setVisible(true);
-            dispose();
-        });
+        JButton btnSubmit = new JButton("Create");
+        btnSubmit.addActionListener(e -> submit());
 
-        // "handleSubmit()"
-        btnSubmit.addActionListener(e -> handleSubmit(status));
+        form.addButtonRow(btnBack, btnSubmit);
 
-        buttons.add(btnBack);
-        buttons.add(btnSubmit);
-
-        add(scroll, BorderLayout.CENTER);
-        add(buttons, BorderLayout.SOUTH);
-
-        setVisible(true);
+        return form.build();
     }
 
-    // método auxiliar para adicionar label + campo na mesma linha
-    private int addField(JPanel panel, GridBagConstraints gbc, String label, JComponent field, int row) {
-        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        panel.add(new JLabel(label), gbc);
-
-        gbc.gridx = 1; gbc.weightx = 1;
-        panel.add(field, gbc);
-
-        return row + 1;
-    }
-
-    private void choosePhoto() {
+    private void chooseImage() {
         JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new FileNameExtensionFilter("Images", "jpg", "png", "jpeg"));
-        int result = chooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            selectedPhoto = chooser.getSelectedFile();
-            lblPhoto.setText(selectedPhoto.getName());
+        chooser.setFileFilter(new FileNameExtensionFilter("Images", "jpg", "jpeg", "png"));
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            selectedImage = chooser.getSelectedFile();
+            lblImageStatus.setText(selectedImage.getName());
         }
     }
 
-    private void handleSubmit(String status) {
-         // montar o map com os valores do formulário
-        Map<String, String> inputMap = new HashMap<>();
-        inputMap.put("Name", txtName.getText().trim());
-        inputMap.put("Username", txtUsername.getText().trim());
-        inputMap.put("Password", new String(txtPassword.getPassword()).trim());
-        inputMap.put("Email", txtEmail.getText().trim());
+    private boolean validateFields() {
+        FormValidator validator = new FormValidator()
+            .require("Name", txtName)
+            .require("Username", txtUsername)
+            .require("Password", txtPassword)
+            .require("Email", txtEmail);
 
-        if (selectedPhoto != null) {
-            inputMap.put("Image", selectedPhoto.getAbsolutePath());
+        if (!type.equals("admin")) {
+            validator
+                .require("NIF", txtNif)
+                .require("Phone", txtPhone)
+                .require("Address", txtAddress);
         }
 
-        if (!type.equalsIgnoreCase("ADMIN")) {
-            inputMap.put("NIF", txtNif.getText().trim());
-            inputMap.put("Phone", txtPhone.getText().trim());
-            inputMap.put("Address", txtAddress.getText().trim());
+        if (type.equals("client")) {
+            validator.require("Sector", txtSector);
         }
 
-        if (type.equalsIgnoreCase("EMPLOYEE")) {
-            inputMap.put("Specialization", txtSpecialization.getText().trim());
-        } else if (type.equalsIgnoreCase("CLIENT")) {
-            inputMap.put("Sector", txtSector.getText().trim());
-            inputMap.put("Scale", txtScale.getText().trim());
+        if (!validator.isValid()) {
+            JOptionPane.showMessageDialog(null, validator.getErrorMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
+        return true;
+    }
 
-        String error = validateFields(inputMap);
-        if (error != null) {
-            JOptionPane.showMessageDialog(this, error, "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
+    private String uploadImageIfSelected() throws Exception {
+        return (selectedImage != null) ? ImageUploader.upload(selectedImage) : "";
+    }
+
+    private boolean persistUser(String imagePath) {
+        User user = buildUser(imagePath);
+        try {
+            DatabaseManager.getInstance().saveUser(user);
+            this.createdUser = user;
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Could not create user: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
+    }
 
-        User user = null;
-        if (type.equalsIgnoreCase("admin")) user = Admin.create();
-        else if (type.equalsIgnoreCase("employee")) user = Employee.create();
-        else if (type.equalsIgnoreCase("client")) user = Client.create(inputMap);
-        if (user == null) return;
-        else if(status.equals("ACTIVE")) user.setStatus(UserStatus.ACTIVE.toString());
-        else user.setStatus(UserStatus.PENDING.toString());
+    private void notifyIfPending() {
+        if (!status.equals(UserStatus.PENDING.toString())) return;
 
-        DatabaseManager.getInstance().saveUser(user);
-        DatabaseManager.getInstance().sendNotification(new NotificationRequest("User '" + user.getUsername() + "' awaiting approval", UserType.ADMIN.toString()));
-        try { Email.sendRegistrationEmail(props, user.getEmail(), user.getName()); } catch (MessagingException e) {
+        try {
+            Email.sendRegistrationEmail(props, createdUser.getEmail(), createdUser.getName());
+        } catch (MessagingException e) {
             System.err.println("Error sending email: " + e.getMessage());
         }
-        System.out.println(type.substring(0, 1).toUpperCase() + type.substring(1) + " created!");
-        System.out.println("Please wait while an admin reviews your request...");
 
+        DatabaseManager.getInstance().sendNotification(
+            new NotificationRequest("User '" + createdUser.getUsername() + "' awaiting approval", UserType.ADMIN.toString())
+        );
     }
 
-    private String validateFields(Map<String, String> inputMap) {
-        String nameError = Validator.getError(inputMap.get("Name"));
-        if (nameError != null) return "Name: " + nameError;
+    private void submit() {
+    if (!validateFields()) return;
 
-        String passwordError = Validator.getError(inputMap.get("Password"));
-        if (passwordError != null) return "Password: " + passwordError;
-
-        String usernameError = Validator.getError("fn::check_username", inputMap.get("Username"));
-        if (usernameError != null) return "Username: " + usernameError;
-
-        String emailError = Validator.getError("fn::check_email", inputMap.get("Email"));
-        if (emailError != null) return "Email: " + emailError;
-
-        if (!type.equalsIgnoreCase("ADMIN")) {
-
-            String nifError = Validator.getError("fn::check_nif", inputMap.get("NIF"));
-            if (nifError != null) return "NIF: " + nifError;
-
-            String phoneError = Validator.getError("fn::check_phone", inputMap.get("Phone"));
-            if (phoneError != null) return "Phone: " + phoneError;
-
-            String addressError = Validator.getError(inputMap.get("Address"));
-            if (addressError != null) return "Address: " + addressError;
-        }
-
-        if (type.equalsIgnoreCase("EMPLOYEE")) {
-            String specError = Validator.getError("fn::check_specialization", inputMap.get("Specialization"));
-            if (specError != null) return "Specialization: " + specError;
-
-        } else if (type.equalsIgnoreCase("CLIENT")) {
-            String scaleError = Validator.getError("fn::check_scale", inputMap.get("Scale"));
-            if (scaleError != null) return "Scale: " + scaleError;
-
-            String sectorError = Validator.getError(inputMap.get("Sector"));
-            if (sectorError != null) return "Sector: " + sectorError;
-        }
-
-        return null;
+    String imagePath;
+    try {
+        imagePath = uploadImageIfSelected();
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Image upload failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return;
     }
 
+    if (!persistUser(imagePath)) return;
 
+    notifyIfPending();
 
+    JOptionPane.showMessageDialog(null, capitalize(type) + " created! Await for admin approval.", "Success", JOptionPane.INFORMATION_MESSAGE);
+    back();
+    back();
+}
+
+    private User buildUser(String imagePath) {
+        String password = new String(txtPassword.getPassword());
+        String image = (imagePath != null) ? imagePath : "";
+
+        switch (type) {
+            case "admin":
+                return new Admin.Builder()
+                    .setName(txtName.getText())
+                    .setUsername(txtUsername.getText())
+                    .setPassword(password)
+                    .setEmail(txtEmail.getText())
+                    .setImage(image)
+                    .setStatus(status)
+                    .build();
+
+            case "employee":
+                return new Employee.Builder()
+                    .setName(txtName.getText())
+                    .setUsername(txtUsername.getText())
+                    .setPassword(password)
+                    .setEmail(txtEmail.getText())
+                    .setImage(image)
+                    .setNif(txtNif.getText())
+                    .setPhone(txtPhone.getText())
+                    .setAddress(txtAddress.getText())
+                    .setSpecialization(String.valueOf(cmbSpecialization.getSelectedItem()))
+                    .setStartDate(ZonedDateTime.now())
+                    .setStatus(status)
+                    .build();
+
+            case "client":
+                return new Client.Builder()
+                    .setName(txtName.getText())
+                    .setUsername(txtUsername.getText())
+                    .setPassword(password)
+                    .setEmail(txtEmail.getText())
+                    .setImage(image)
+                    .setNif(txtNif.getText())
+                    .setPhone(txtPhone.getText())
+                    .setAddress(txtAddress.getText())
+                    .setSector(txtSector.getText())
+                    .setScale(String.valueOf(cmbScale.getSelectedItem()))
+                    .setStatus(status)
+                    .build();
+
+            default:
+                return null;
+        }
+    }
+
+    private String capitalize(String s) {
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
+    }
 }

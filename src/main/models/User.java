@@ -7,7 +7,6 @@ import com.surrealdb.RecordId;
 public abstract class User {
     protected RecordId id;
     protected String name, username, password, email, type, status, image;
-    
 
     // builder pattern to shut up CodeScene...
         // https://stackoverflow.com/questions/17164375/subclassing-a-java-builder-class
@@ -18,13 +17,13 @@ public abstract class User {
         protected RecordId id;
         protected String name, username, password, email, type, status, image;
 
-        public Builder<T> setId(RecordId id) { this.id = id; return self(); }
-        public Builder<T> setName(String name) { this.name = name; return self(); }
-        public Builder<T> setUsername(String username) { this.username = username; return self(); }
-        public Builder<T> setPassword(String password) { this.password = password; return self(); }
-        public Builder<T> setEmail(String email) { this.email = email; return self(); }
-        public Builder<T> setStatus(String status) { this.status = status; return self(); }
-        public Builder<T> setImage(String image) { this.image = image; return self(); }
+        public T setId(RecordId id) { this.id = id; return self(); }
+        public T setName(String name) { this.name = name; return self(); }
+        public T setUsername(String username) { this.username = username; return self(); }
+        public T setPassword(String password) { this.password = password; return self(); }
+        public T setEmail(String email) { this.email = email; return self(); }
+        public T setStatus(String status) { this.status = status; return self(); }
+        public T setImage(String image) { this.image = image; return self(); }
 
         protected abstract T self();
         public abstract User build();
@@ -51,9 +50,9 @@ public abstract class User {
             "username", user.getUsername(),
             "password", user.getPassword(),
             "email", user.getEmail(),
+            "image", user.getImage(),
             "type", user.getType(),
-            "status", user.getStatus(),
-            "photo", user.getImage()
+            "status", user.getStatus()
         );
     }
 }

@@ -1,62 +1,87 @@
 package main.states;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
 import main.DatabaseManager;
 import main.PropertiesManager;
-import main.utils.Input;
-import main.utils.PressKey;
+import main.utils.FormBuilder;
+import main.utils.FormValidator;
 
 public class DBConnectionState extends State {
-    private PropertiesManager props;
+    private JTextField txtConnect = new JTextField(textFieldCols);
+    private JTextField txtNamespace = new JTextField(textFieldCols);
+    private JTextField txtDatabase = new JTextField(textFieldCols);
+    private JTextField txtUsername = new JTextField(textFieldCols);
+    private JPasswordField txtPassword = new JPasswordField(textFieldCols);
+    private JTextField txtEmail = new JTextField(textFieldCols);
+    private JTextField txtKey = new JTextField(textFieldCols);
+    private JTextField txtUploadUrl = new JTextField(textFieldCols);
+    private JTextField txtUploadToken = new JTextField(textFieldCols);
 
     @Override
-    public void render() {
-        System.out.println("--- DATABASE ACCESS CONGURATION ---");
-        System.out.println("No properties file found. Please enter the following database connection details:");
+    public JPanel buildView() {
+        JButton btnExit = new JButton("Exit");
+        btnExit.addActionListener(e -> State.exit());
+
+        JButton btnSubmit = new JButton("Save and connect");
+        btnSubmit.addActionListener(e -> submit());
+
+        return new FormBuilder("Database & Service Configuration")
+            .addFullWidthRow(new JLabel("No properties file found. Enter connection details:"))
+            .addField("Connection URL:", txtConnect)
+            .addField("Namespace:", txtNamespace)
+            .addField("Database:", txtDatabase)
+            .addField("Username:", txtUsername)
+            .addField("Password:", txtPassword)
+            .addField("Email:", txtEmail)
+            .addField("Email App Key:", txtKey)
+            .addField("Upload URL:", txtUploadUrl)
+            .addField("Upload Token:", txtUploadToken)
+            .addButtonRow(btnExit, btnSubmit)
+            .build();
     }
 
-    @Override
-    public void handleInput() {
-        String connect = Input.getInput("Connection URL");
-        if (connect == null) System.exit(0);
+    private void submit() {
+        FormValidator validator = new FormValidator()
+            .require("Connection URL", txtConnect)
+            .require("Namespace", txtNamespace)
+            .require("Database", txtDatabase)
+            .require("Username", txtUsername)
+            .require("Password", txtPassword);
 
-        String namespace = Input.getInput("Namespace");
-        if (namespace == null) System.exit(0);
-
-        String database = Input.getInput("Database");
-        if (database == null) System.exit(0);
-
-        String username = Input.getInput("Username");
-        if (username == null) System.exit(0);
-
-        String password = Input.getInput("Password");
-        if (password == null) System.exit(0);
-
-        String email = Input.getInput("Email");
-        if (email == null) System.exit(0);
-
-        String key = Input.getInput("Key");
-        if (key == null) System.exit(0);
-
-        props = new PropertiesManager();
-        props.setProperty("connect", connect);
-        props.setProperty("namespace", namespace);
-        props.setProperty("database", database);
-        props.setProperty("username", username);
-        props.setProperty("password", password);
-
-        props.setProperty("email", email);
-        props.setProperty("key", key);
-
-        if (props.saveFile()) {
-            System.out.println("Database configuration saved successfully.");
-            PressKey.enter();
-        } else {
-            System.out.println("Error saving database configuration.");
-            PressKey.enter();
+        if (!validator.isValid()) {
+            JOptionPane.showMessageDialog(null, validator.getErrorMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        DatabaseManager.getInstance().connect();
+        PropertiesManager props = new PropertiesManager();
+        props.setProperty("connect", txtConnect.getText());
+        props.setProperty("namespace", txtNamespace.getText());
+        props.setProperty("database", txtDatabase.getText());
+        props.setProperty("username", txtUsername.getText());
+        props.setProperty("password", new String(txtPassword.getPassword()));
+        props.setProperty("email", txtEmail.getText());
+        props.setProperty("key", txtKey.getText());
+        props.setProperty("upload_url", txtUploadUrl.getText());
+        props.setProperty("upload_token", txtUploadToken.getText());
 
-        new SignInUp().enter();
+        if (!props.saveFile()) {
+            JOptionPane.showMessageDialog(null, "Error saving database configuration.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            DatabaseManager.getInstance().connect();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Could not connect to database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        next(new SignInState());
     }
 }
