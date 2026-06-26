@@ -24,6 +24,7 @@ public class Admin extends User {
             admin.username = this.username;
             admin.password = this.password;
             admin.email = this.email;
+            admin.image = this.image;
             admin.type = UserType.ADMIN.toString();
             admin.status = (this.status != null) ? this.status : UserStatus.ACTIVE.toString();
             return admin;

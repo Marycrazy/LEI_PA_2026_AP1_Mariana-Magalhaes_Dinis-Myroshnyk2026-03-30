@@ -3,6 +3,8 @@ package main.states;
 import java.util.Stack;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
 import main.models.User;
 
 public abstract class State {
@@ -33,7 +35,10 @@ public abstract class State {
     }
 
     private void show() {
-        frame.setContentPane(buildView());
+        JPanel content = buildView();
+        JScrollPane scrollPane = new JScrollPane(content);
+        scrollPane.setBorder(null);
+        frame.setContentPane(scrollPane);
         frame.revalidate();
         frame.repaint();
     }

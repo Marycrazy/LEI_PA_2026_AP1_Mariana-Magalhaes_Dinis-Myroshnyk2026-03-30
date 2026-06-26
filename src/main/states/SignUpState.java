@@ -39,6 +39,6 @@ public class SignUpState extends State {
 
     private void createUser(String type) {
         System.out.println("Creating " + type + "...");
-        // next(new CreateUserState(type, UserStatus.PENDING.toString())); // TODO: uncomment when CreateUserState is implemented
+        next(new CreateUserState(type, UserStatus.PENDING.toString()));
     }
 }

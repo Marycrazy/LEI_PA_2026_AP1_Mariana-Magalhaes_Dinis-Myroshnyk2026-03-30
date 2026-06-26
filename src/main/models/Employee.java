@@ -37,6 +37,7 @@ public  class Employee extends RegistrableUser {
             employee.username = this.username;
             employee.password = this.password;
             employee.email = this.email;
+            employee.image = this.image;
             employee.type = UserType.EMPLOYEE.toString();
             employee.status = (this.status != null) ? this.status : UserStatus.PENDING.toString();
             employee.address = this.address;

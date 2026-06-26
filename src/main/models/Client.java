@@ -34,6 +34,7 @@ public class Client extends RegistrableUser {
             client.username = this.username;
             client.password = this.password;
             client.email = this.email;
+            client.image = this.image;
             client.type = UserType.CLIENT.toString();
             client.status = (this.status != null) ? this.status : UserStatus.PENDING.toString();
             client.address = this.address;

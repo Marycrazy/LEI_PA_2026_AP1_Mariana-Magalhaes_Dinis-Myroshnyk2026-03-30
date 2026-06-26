@@ -38,6 +38,12 @@ package main.states.OLD;
 //         String key = Input.getInput("Key");
 //         if (key == null) System.exit(0);
 
+//         String upload_url = Input.getInput("Upload URL");
+//         if (upload_url == null) System.exit(0);
+
+//         String upload_token = Input.getInput("Upload Token");
+//         if (upload_token == null) System.exit(0);
+
 //         props = new PropertiesManager();
 //         props.setProperty("connect", connect);
 //         props.setProperty("namespace", namespace);
@@ -47,6 +53,9 @@ package main.states.OLD;
 
 //         props.setProperty("email", email);
 //         props.setProperty("key", key);
+
+//         props.setProperty("upload_url", upload_url);
+//         props.setProperty("upload_token", upload_token);
 
 //         if (props.saveFile()) {
 //             System.out.println("Database configuration saved successfully.");
