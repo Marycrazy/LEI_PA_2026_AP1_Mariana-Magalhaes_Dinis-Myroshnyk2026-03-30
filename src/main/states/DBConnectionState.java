@@ -13,15 +13,15 @@ import main.utils.FormBuilder;
 import main.utils.FormValidator;
 
 public class DBConnectionState extends State {
-    private JTextField txtConnect = new JTextField(20);
-    private JTextField txtNamespace = new JTextField(20);
-    private JTextField txtDatabase = new JTextField(20);
-    private JTextField txtUsername = new JTextField(20);
-    private JPasswordField txtPassword = new JPasswordField(20);
-    private JTextField txtEmail = new JTextField(20);
-    private JTextField txtKey = new JTextField(20);
-    private JTextField txtUploadUrl = new JTextField(20);
-    private JTextField txtUploadToken = new JTextField(20);
+    private JTextField txtConnect = new JTextField(textFieldCols);
+    private JTextField txtNamespace = new JTextField(textFieldCols);
+    private JTextField txtDatabase = new JTextField(textFieldCols);
+    private JTextField txtUsername = new JTextField(textFieldCols);
+    private JPasswordField txtPassword = new JPasswordField(textFieldCols);
+    private JTextField txtEmail = new JTextField(textFieldCols);
+    private JTextField txtKey = new JTextField(textFieldCols);
+    private JTextField txtUploadUrl = new JTextField(textFieldCols);
+    private JTextField txtUploadToken = new JTextField(textFieldCols);
 
     @Override
     public JPanel buildView() {

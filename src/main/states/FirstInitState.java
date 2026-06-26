@@ -14,10 +14,10 @@ import main.utils.FormBuilder;
 import main.utils.FormValidator;
 
 public class FirstInitState extends State {
-    private JTextField txtName = new JTextField(15);
-    private JTextField txtUsername = new JTextField(15);
-    private JPasswordField txtPassword = new JPasswordField(15);
-    private JTextField txtEmail = new JTextField(15);
+    private JTextField txtName = new JTextField(textFieldCols);
+    private JTextField txtUsername = new JTextField(textFieldCols);
+    private JPasswordField txtPassword = new JPasswordField(textFieldCols);
+    private JTextField txtEmail = new JTextField(textFieldCols);
 
     @Override
     public JPanel buildView() {

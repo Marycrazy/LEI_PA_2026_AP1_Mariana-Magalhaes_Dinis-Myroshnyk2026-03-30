@@ -9,11 +9,13 @@ import javax.swing.JTextField;
 import main.DatabaseManager;
 import main.DatabaseManager.UserCredentials;
 import main.models.Admin;
+import main.models.Client;
+import main.models.Employee;
 import main.utils.FormBuilder;
 
 public class SignInState extends State {
-    private JTextField txtUsername = new JTextField(15);
-    private JPasswordField txtPassword = new JPasswordField(15);
+    private JTextField txtUsername = new JTextField(textFieldCols);
+    private JPasswordField txtPassword = new JPasswordField(textFieldCols);
 
     @Override
     public JPanel buildView() {
@@ -51,13 +53,13 @@ public class SignInState extends State {
 
         if (type.equals("ADMIN")) {
             Admin admin = (Admin) DatabaseManager.getInstance().fetchUser(username);
-            // next(new AdminMenuState(admin)); // TODO: uncomment when AdminMenuState is implemented
+            next(new AdminMenuState(admin));
         } else if (type.equals("EMPLOYEE")) {
-            JOptionPane.showMessageDialog(null, "The user is type Employee", "type", JOptionPane.INFORMATION_MESSAGE);
-            // next(new EmployeeMenuState(employee)); // TODO: uncomment when EmployeeMenuState is implemented
+            Employee employee = (Employee) DatabaseManager.getInstance().fetchUser(username);
+            next(new EmployeeMenuState(employee));
         } else if (type.equals("CLIENT")) {
-            JOptionPane.showMessageDialog(null, "The user is type Client", "type", JOptionPane.INFORMATION_MESSAGE);
-            // next(new ClientMenuState(client)); // TODO: uncomment when ClientMenuState is implemented
+            Client client = (Client) DatabaseManager.getInstance().fetchUser(username);
+            next(new ClientMenuState(client));
         }
     }
 

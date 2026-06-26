@@ -11,6 +11,7 @@ public abstract class State {
     protected static User user;
     private static Stack<State> stateStack = new Stack<>();
     private static JFrame frame;
+    protected final int textFieldCols = 20;
 
     public static void init(JFrame f) {
         frame = f;

@@ -30,23 +30,22 @@ import main.utils.ImageUploader;
 public class CreateUserState extends State {
     private final String type;
     private final String status;
-    private final int textFieldWidth = 15;
     private PropertiesManager props = new PropertiesManager();
     private User createdUser;
 
     // common fields
-    private JTextField txtName = new JTextField(textFieldWidth);
-    private JTextField txtUsername = new JTextField(textFieldWidth);
-    private JPasswordField txtPassword = new JPasswordField(textFieldWidth);
-    private JTextField txtEmail = new JTextField(textFieldWidth);
+    private JTextField txtName = new JTextField(textFieldCols);
+    private JTextField txtUsername = new JTextField(textFieldCols);
+    private JPasswordField txtPassword = new JPasswordField(textFieldCols);
+    private JTextField txtEmail = new JTextField(textFieldCols);
 
     // registrable-only fields (employee/client)
-    private JTextField txtNif = new JTextField(textFieldWidth);
-    private JTextField txtPhone = new JTextField(textFieldWidth);
-    private JTextField txtAddress = new JTextField(textFieldWidth);
+    private JTextField txtNif = new JTextField(textFieldCols);
+    private JTextField txtPhone = new JTextField(textFieldCols);
+    private JTextField txtAddress = new JTextField(textFieldCols);
 
     // client-only
-    private JTextField txtSector = new JTextField(textFieldWidth);
+    private JTextField txtSector = new JTextField(textFieldCols);
     private JComboBox<String> cmbScale = new JComboBox<>(new String[]{"A", "B", "C", "D"});
 
     // employee-only
