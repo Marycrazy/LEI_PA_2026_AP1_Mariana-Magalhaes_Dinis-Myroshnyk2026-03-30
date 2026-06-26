@@ -6,8 +6,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import main.FormBuilder;
 import main.enums.UserStatus;
+import main.utils.FormBuilder;
 
 public class SignUpState extends State {
     private JRadioButton rbEmployee = new JRadioButton("Employee");

@@ -1,4 +1,4 @@
-# Setup — SurrealDB Java Driver
+# Setup - SurrealDB Java Driver
 
 Este projeto utiliza o SurrealDB Java Driver, que devido ao seu tamanho (≈249 MB) não está incluído no repositório. Segue os passos abaixo para o instalar manualmente.
 ## Pré-requisitos

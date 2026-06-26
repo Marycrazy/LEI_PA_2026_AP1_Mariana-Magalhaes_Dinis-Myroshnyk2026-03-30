@@ -15,7 +15,7 @@ package main.states.OLD;
 //     }
 
 //     @Override
-//     protected String getTitle() { return "ASSIGN EMPLOYEE — " + repair.getRepairCode(); }
+//     protected String getTitle() { return "ASSIGN EMPLOYEE - " + repair.getRepairCode(); }
 
 //     @Override
 //     protected List<Employee> fetchItems() {

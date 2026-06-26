@@ -1,10 +1,13 @@
-package main;
+package main.utils;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
+import main.ViewManager;
+
 import java.awt.GridBagConstraints;
 import java.awt.FlowLayout;
 import java.awt.Cursor;

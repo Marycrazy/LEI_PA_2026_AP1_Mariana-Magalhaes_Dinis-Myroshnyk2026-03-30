@@ -15,7 +15,6 @@ import java.time.ZonedDateTime;
 
 import main.DatabaseManager;
 import main.DatabaseManager.NotificationRequest;
-import main.FormBuilder;
 import main.PropertiesManager;
 import main.enums.UserStatus;
 import main.enums.UserType;
@@ -24,6 +23,8 @@ import main.models.Client;
 import main.models.Employee;
 import main.models.User;
 import main.utils.Email;
+import main.utils.FormBuilder;
+import main.utils.FormValidator;
 import main.utils.ImageUploader;
 
 public class CreateUserState extends State {
@@ -31,6 +32,7 @@ public class CreateUserState extends State {
     private final String status;
     private final int textFieldWidth = 15;
     private PropertiesManager props = new PropertiesManager();
+    private User createdUser;
 
     // common fields
     private JTextField txtName = new JTextField(textFieldWidth);
@@ -104,41 +106,82 @@ public class CreateUserState extends State {
         }
     }
 
-    private void submit() {
-        String imagePath = null;
-        if (selectedImage != null) {
-            try {
-                imagePath = ImageUploader.upload(selectedImage);
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Image upload failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+    private boolean validateFields() {
+        FormValidator validator = new FormValidator()
+            .require("Name", txtName)
+            .require("Username", txtUsername)
+            .require("Password", txtPassword)
+            .require("Email", txtEmail);
+
+        if (!type.equals("admin")) {
+            validator
+                .require("NIF", txtNif)
+                .require("Phone", txtPhone)
+                .require("Address", txtAddress);
         }
 
-        User user = buildUser(imagePath);
+        if (type.equals("client")) {
+            validator.require("Sector", txtSector);
+        }
 
+        if (!validator.isValid()) {
+            JOptionPane.showMessageDialog(null, validator.getErrorMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    private String uploadImageIfSelected() throws Exception {
+        return (selectedImage != null) ? ImageUploader.upload(selectedImage) : "";
+    }
+
+    private boolean persistUser(String imagePath) {
+        User user = buildUser(imagePath);
         try {
             DatabaseManager.getInstance().saveUser(user);
+            this.createdUser = user;
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Could not create user: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
-
-        if (status.equals(UserStatus.PENDING.toString())) {
-            try { Email.sendRegistrationEmail(props, user.getEmail(), user.getName()); } catch (MessagingException e) {
-                System.err.println("Error sending email: " + e.getMessage());
-            }
-
-            DatabaseManager.getInstance().sendNotification(
-                new NotificationRequest("User '" + user.getUsername() + "' awaiting approval", UserType.ADMIN.toString())
-            );
-        }
-
-        JOptionPane.showMessageDialog(null, capitalize(type) + " created!", "Success", JOptionPane.INFORMATION_MESSAGE);
-        back();
     }
+
+    private void notifyIfPending() {
+        if (!status.equals(UserStatus.PENDING.toString())) return;
+
+        try {
+            Email.sendRegistrationEmail(props, createdUser.getEmail(), createdUser.getName());
+        } catch (MessagingException e) {
+            System.err.println("Error sending email: " + e.getMessage());
+        }
+
+        DatabaseManager.getInstance().sendNotification(
+            new NotificationRequest("User '" + createdUser.getUsername() + "' awaiting approval", UserType.ADMIN.toString())
+        );
+    }
+
+    private void submit() {
+    if (!validateFields()) return;
+
+    String imagePath;
+    try {
+        imagePath = uploadImageIfSelected();
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Image upload failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    if (!persistUser(imagePath)) return;
+
+    notifyIfPending();
+
+    JOptionPane.showMessageDialog(null, capitalize(type) + " created! Await for admin approval.", "Success", JOptionPane.INFORMATION_MESSAGE);
+    back();
+    back();
+}
 
     private User buildUser(String imagePath) {
         String password = new String(txtPassword.getPassword());

@@ -8,8 +8,8 @@ import javax.swing.JTextField;
 
 import main.DatabaseManager;
 import main.DatabaseManager.UserCredentials;
-import main.FormBuilder;
 import main.models.Admin;
+import main.utils.FormBuilder;
 
 public class SignInState extends State {
     private JTextField txtUsername = new JTextField(15);

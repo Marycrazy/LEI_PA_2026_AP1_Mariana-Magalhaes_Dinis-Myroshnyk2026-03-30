@@ -3,8 +3,8 @@ package main;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-// import main.states.DBConnectionState;
-// import main.states.FirstInitState;
+import main.states.DBConnectionState;
+import main.states.FirstInitState;
 import main.states.State;
 import main.states.SignInState;
 
@@ -27,7 +27,7 @@ public class App {
 
         try {
             if (!DatabaseManager.getInstance().isConfigured()) {
-                // new DBConnectionState().enter(); // TODO: uncomment
+                new DBConnectionState().enter();
                 return;
             }
             DatabaseManager.getInstance().connect();
@@ -39,8 +39,7 @@ public class App {
 
     private static void sysInit() {
         if (!DatabaseManager.getInstance().hasAdmin())
-            // new FirstInitState().enter(); // TODO: uncomment
-            return; //TODO: remove this line when uncommenting the above
+            new FirstInitState().enter();
         else new SignInState().enter();
     }
 }

@@ -13,7 +13,7 @@ package main.states.OLD;
 
 //     @Override
 //     protected String getTitle() {
-//         return filterState.isEmpty() ? "ALL REPAIRS" : "REPAIRS — " + filterState;
+//         return filterState.isEmpty() ? "ALL REPAIRS" : "REPAIRS - " + filterState;
 //     }
 
 //     @Override
