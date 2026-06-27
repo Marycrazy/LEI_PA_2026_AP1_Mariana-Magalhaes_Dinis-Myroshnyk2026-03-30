@@ -27,6 +27,7 @@ import main.models.Repair;
 import main.models.User;
 import main.models.Notification;
 import main.models.Part;
+import main.models.Log;
 
 public class DatabaseManager {
     public record UserCredentials(String username, String password) {}
@@ -202,6 +203,32 @@ public class DatabaseManager {
 
     public void markAsRead(User user, Notification notification) {
         driver.relate(user.getUserId(), "viewed_notification", notification.getId());
+    }
+
+    public List<Log> getLogs (String search){
+        String query = "SELECT action, details, created_at, user.name AS userName FROM log";
+
+        if (!search.isEmpty()) query += " WHERE string::contains(string::lowercase(type::string(user.name)), string::lowercase($search))";
+        
+        query += " ORDER BY created_at DESC";
+
+        Response response = search.isEmpty()
+            ? driver.query(query)
+            : driver.queryBind(query, Map.of("search", search));
+
+        List <Log> logs = new ArrayList<>();
+        for (Value element : response.take(0).getArray()) {
+            var obj = element.getObject();
+            Log log = new Log();
+
+            log.setAction(obj.get("action").getString());
+            log.setCreatedAt(obj.get("created_at").getDateTime());
+            log.setDetails(obj.get("details").getString());
+            log.setUserName((obj.get("userName") != null && !obj.get("userName").isNone()) ? obj.get("userName").getString() : "Deleted User");
+
+            logs.add(log);
+        }
+        return logs;
     }
 
     public List<User> getUsers(String search, User currUser) {
