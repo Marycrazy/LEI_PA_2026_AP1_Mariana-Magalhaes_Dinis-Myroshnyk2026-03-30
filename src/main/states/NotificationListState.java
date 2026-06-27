@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import main.DatabaseManager;
 import main.models.Notification;
 
-public class ListNotificationState extends ListState<Notification> {
+public class NotificationListState extends ListState<Notification> {
     private boolean listAll = true;
     private static final int TRUNCATE = 60;
     private static final String[] FILTER_OPTIONS = {"All notifications", "Unread only"};

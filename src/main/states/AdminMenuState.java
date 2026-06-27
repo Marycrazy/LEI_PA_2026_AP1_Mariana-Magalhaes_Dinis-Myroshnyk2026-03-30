@@ -13,7 +13,7 @@ public class AdminMenuState extends State {
             // .addButton("Repairs", "View and manage repairs", () -> next(new ListRepairsState())) // TODO: uncomment when ListRepairsState is ready
             .addButton("Parts", "Manage available parts", () -> JOptionPane.showMessageDialog(null, "Parts - TODO")) // temporary button
             // .addButton("Parts", "Manage available parts", () -> next(new ManagePartsMenuState())) // TODO: uncomment when ManagePartsMenuState is ready
-            .addButton("Notifications", "View notifications", () -> next(new ListNotificationState()))
+            .addButton("Notifications", "View notifications", () -> next(new NotificationListState()))
             .addButton("Action Log", "View action log", () -> JOptionPane.showMessageDialog(null, "Action Log - TODO")) // temporary button
             // .addButton("Action Log", "View action log", () -> next(new ListActionLogState())) // TODO: uncomment when ActionLogState is ready
             .addButton("Logout", "Logout", () -> { State.user = null; back(); })

@@ -10,7 +10,7 @@ import javax.swing.JTextField;
 import main.DatabaseManager;
 import main.models.User;
 
-public class ListUsersState extends ListState<User> {
+public class UserListState extends ListState<User> {
     private String search = "";
 
     @Override

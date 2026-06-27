@@ -12,7 +12,7 @@ public class ClientMenuState extends State {
             // .addButton("My Equipment", "View and manage your equipment", () -> next(new EquipmentMenuState())) // TODO: uncomment when EquipmentMenuState is ready
             .addButton("My Repairs", "View your repair requests", () -> JOptionPane.showMessageDialog(null, "My Repairs - TODO")) // temporary button
             // .addButton("My Repairs", "View your repair requests", () -> next(new ListRepairsState())) // TODO: uncomment when ListRepairsState is ready
-            .addButton("Notifications", "View notifications", () -> next(new ListNotificationState()))
+            .addButton("Notifications", "View notifications", () -> next(new NotificationListState()))
             .addButton("Change Profile", "Edit your account details", () -> JOptionPane.showMessageDialog(null, "Change Profile - TODO")) // temporary button
             // .addButton("Change Profile", "Edit your account details", () -> next(new EditUserState(user))) // TODO: uncomment when EditUserState is ready
             .addButton("Logout", "Logout", () -> { State.user = null; back(); })
