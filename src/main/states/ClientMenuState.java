@@ -8,7 +8,7 @@ public class ClientMenuState extends State {
     @Override
     public JPanel buildView() {
         return new MenuBuilder(user)
-            .addButton("My Equipment", "View and manage your equipment", () -> JOptionPane.showMessageDialog(null, "My Equipment - TODO")) // temporary button
+            .addButton("My Equipment", "View and manage your equipment", () -> next(new EquipmentMenuState())) // temporary button
             // .addButton("My Equipment", "View and manage your equipment", () -> next(new EquipmentMenuState())) // TODO: uncomment when EquipmentMenuState is ready
             .addButton("My Repairs", "View your repair requests", () -> JOptionPane.showMessageDialog(null, "My Repairs - TODO")) // temporary button
             // .addButton("My Repairs", "View your repair requests", () -> next(new ListRepairsState())) // TODO: uncomment when ListRepairsState is ready
