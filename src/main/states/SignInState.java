@@ -50,16 +50,17 @@ public class SignInState extends State {
         if (!isActiveUser(username)) return;
 
         String type = DatabaseManager.getInstance().getType(username);
+        State.resetNotificationPopup();
 
         if (type.equals("ADMIN")) {
-            Admin admin = (Admin) DatabaseManager.getInstance().fetchUser(username);
-            next(new AdminMenuState(admin));
+            State.user = (Admin) DatabaseManager.getInstance().fetchUser(username);
+            next(new AdminMenuState());
         } else if (type.equals("EMPLOYEE")) {
-            Employee employee = (Employee) DatabaseManager.getInstance().fetchUser(username);
-            next(new EmployeeMenuState(employee));
+            State.user = (Employee) DatabaseManager.getInstance().fetchUser(username);
+            next(new EmployeeMenuState());
         } else if (type.equals("CLIENT")) {
-            Client client = (Client) DatabaseManager.getInstance().fetchUser(username);
-            next(new ClientMenuState(client));
+            State.user = (Client) DatabaseManager.getInstance().fetchUser(username);
+            next(new ClientMenuState());
         }
     }
 

@@ -66,7 +66,8 @@ public class FirstInitState extends State {
         }
 
         State.user = admin;
+        State.resetNotificationPopup();
         JOptionPane.showMessageDialog(null, "Admin user created!", "Success", JOptionPane.INFORMATION_MESSAGE);
-        // next(new AdminMenuState(admin)); // TODO: uncomment when AdminMenuState is ready
+        next(new AdminMenuState());
     }
 }

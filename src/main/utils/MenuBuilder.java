@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 
 import main.DatabaseManager;
 import main.models.User;
+import main.states.State;
 
 public class MenuBuilder {
     private final JPanel root = new JPanel(new BorderLayout());
@@ -23,7 +24,19 @@ public class MenuBuilder {
     private final GridBagConstraints gbc = new GridBagConstraints();
     private int row = 0;
 
+    public MenuBuilder() {
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 40, 10, 40));
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(6, 0, 6, 0);
+        gbc.gridx = 0;
+        gbc.weightx = 1;
+
+        root.add(centerPanel, BorderLayout.CENTER);
+    }
+
     public MenuBuilder(User user) {
+        this();
+
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
@@ -39,16 +52,10 @@ public class MenuBuilder {
         topPanel.add(lblUser, BorderLayout.WEST);
         topPanel.add(lblNotifications, BorderLayout.EAST);
 
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 40, 10, 40));
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(6, 0, 6, 0);
-        gbc.gridx = 0;
-        gbc.weightx = 1;
-
         root.add(topPanel, BorderLayout.NORTH);
-        root.add(centerPanel, BorderLayout.CENTER);
 
-        if (notifications > 0) {
+        if (notifications > 0 && !State.hasShownNotificationPopup()) {
+            State.markNotificationPopupShown();
             SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(null,
                     "You have " + notifications + " unread notification(s).",

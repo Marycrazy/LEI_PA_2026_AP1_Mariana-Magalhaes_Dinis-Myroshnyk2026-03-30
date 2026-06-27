@@ -25,7 +25,7 @@ import main.models.User;
 import main.utils.Email;
 import main.utils.FormBuilder;
 import main.utils.FormValidator;
-import main.utils.ImageUploader;
+import main.utils.ImageService;
 
 public class CreateUserState extends State {
     private final String type;
@@ -131,7 +131,7 @@ public class CreateUserState extends State {
     }
 
     private String uploadImageIfSelected() throws Exception {
-        return (selectedImage != null) ? ImageUploader.upload(selectedImage) : "";
+        return (selectedImage != null) ? ImageService.upload(selectedImage) : "";
     }
 
     private boolean persistUser(String imagePath) {

@@ -204,14 +204,12 @@ public class DatabaseManager {
         driver.relate(user.getUserId(), "viewed_notification", notification.getId());
     }
 
-    public List<User> getUsers(String search, String sortBy, boolean asc, User currUser) {
+    public List<User> getUsers(String search, User currUser) {
         String query =  "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
                         "FROM user WHERE id != $currentId ";
 
         if (!search.isEmpty()) query += "AND (string::contains(string::lowercase(name), string::lowercase($search)) " +
                                         "OR string::contains(string::lowercase(username), string::lowercase($search))) ";
-
-        query += "ORDER BY " + sortBy + " " + (asc ? "ASC" : "DESC");
 
         Response response = driver.queryBind(query, Map.of(
             "currentId", currUser.getUserId(),
@@ -237,6 +235,7 @@ public class DatabaseManager {
                 .setUsername(obj.get("username").getString())
                 .setPassword(obj.get("password").getString())
                 .setEmail(obj.get("email").getString())
+                .setImage(obj.get("image").getString())
                 .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
                 .build();
         }
@@ -256,6 +255,7 @@ public class DatabaseManager {
                 .setUsername(obj.get("username").getString())
                 .setPassword(obj.get("password").getString())
                 .setEmail(obj.get("email").getString())
+                .setImage(obj.get("image").getString())
                 .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
                 .build();
         }
@@ -271,6 +271,7 @@ public class DatabaseManager {
             .setUsername(obj.get("username").getString())
             .setPassword(obj.get("password").getString())
             .setEmail(obj.get("email").getString())
+            .setImage(obj.get("image").getString())
             .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
             .build();
     }

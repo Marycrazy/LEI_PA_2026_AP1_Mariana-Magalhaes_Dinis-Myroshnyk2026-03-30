@@ -20,6 +20,7 @@ public class DBConnectionState extends State {
     private JPasswordField txtPassword = new JPasswordField(textFieldCols);
     private JTextField txtEmail = new JTextField(textFieldCols);
     private JTextField txtKey = new JTextField(textFieldCols);
+    private JTextField txtDownloadUrl = new JTextField(textFieldCols);
     private JTextField txtUploadUrl = new JTextField(textFieldCols);
     private JTextField txtUploadToken = new JTextField(textFieldCols);
 
@@ -40,6 +41,7 @@ public class DBConnectionState extends State {
             .addField("Password:", txtPassword)
             .addField("Email:", txtEmail)
             .addField("Email App Key:", txtKey)
+            .addField("Download URL:", txtDownloadUrl)
             .addField("Upload URL:", txtUploadUrl)
             .addField("Upload Token:", txtUploadToken)
             .addButtonRow(btnExit, btnSubmit)
@@ -67,6 +69,7 @@ public class DBConnectionState extends State {
         props.setProperty("password", new String(txtPassword.getPassword()));
         props.setProperty("email", txtEmail.getText());
         props.setProperty("key", txtKey.getText());
+        props.setProperty("download_url", txtDownloadUrl.getText());
         props.setProperty("upload_url", txtUploadUrl.getText());
         props.setProperty("upload_token", txtUploadToken.getText());
 

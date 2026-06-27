@@ -11,10 +11,23 @@ public abstract class State {
     protected static User user;
     private static Stack<State> stateStack = new Stack<>();
     private static JFrame frame;
+    private static boolean notificationPopupShown = false;
     protected final int textFieldCols = 20;
 
     public static void init(JFrame f) {
         frame = f;
+    }
+
+    public static boolean hasShownNotificationPopup() {
+        return notificationPopupShown;
+    }
+
+    public static void markNotificationPopupShown() {
+        notificationPopupShown = true;
+    }
+
+    public static void resetNotificationPopup() {
+        notificationPopupShown = false;
     }
 
     public abstract JPanel buildView();
@@ -42,6 +55,10 @@ public abstract class State {
         frame.setContentPane(scrollPane);
         frame.revalidate();
         frame.repaint();
+    }
+
+    protected void refresh() {
+        javax.swing.SwingUtilities.invokeLater(this::show);
     }
 
     public static void exit() {
