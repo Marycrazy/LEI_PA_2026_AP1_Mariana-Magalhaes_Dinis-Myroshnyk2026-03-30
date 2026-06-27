@@ -8,7 +8,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import main.models.Part;
-import main.models.User;
 import main.DatabaseManager;
 
 public class ListPartsState extends ListState<Part> {

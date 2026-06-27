@@ -37,7 +37,7 @@ public class ListRepairsState extends ListState<Repair> {
 
     @Override
     protected void onSelect(Repair e) {
-        // next(new UserDetailState(u));
+        next(new RepairDetailState(e));
     }
 
     @Override

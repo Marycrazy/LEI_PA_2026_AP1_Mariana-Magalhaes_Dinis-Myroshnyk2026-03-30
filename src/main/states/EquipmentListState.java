@@ -42,7 +42,7 @@ public class EquipmentListState extends ListState<Equipment> {
 
     @Override
     protected void onSelect(Equipment e) {
-        // next(new UserDetailState(u));
+        next(new EquipmentDetailState(e));
     }
 
     @Override
