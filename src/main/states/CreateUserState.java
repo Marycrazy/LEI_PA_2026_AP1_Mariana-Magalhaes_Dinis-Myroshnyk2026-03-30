@@ -108,14 +108,14 @@ public class CreateUserState extends State {
     private boolean validateFields() {
         FormValidator validator = new FormValidator()
             .require("Name", txtName)
-            .require("Username", txtUsername)
+            .dbValidate("Username", txtUsername, "fn::check_username")
             .require("Password", txtPassword)
-            .require("Email", txtEmail);
+            .dbValidate("Email", txtEmail, "fn::check_email");
 
         if (!type.equals("admin")) {
             validator
-                .require("NIF", txtNif)
-                .require("Phone", txtPhone)
+                .dbValidate("NIF", txtNif, "fn::check_nif")
+                .dbValidate("Phone", txtPhone, "fn::check_phone")
                 .require("Address", txtAddress);
         }
 

@@ -12,7 +12,7 @@ public class Validator {
         if (isEmpty(value)) {
             System.err.println("Field cannot be empty!");
             return false;
-        } else if (!DatabaseManager.getInstance().validateField(new DbFunctionCall(dbFunc, value))) return false;
+        } else if (DatabaseManager.getInstance().validateField(new DbFunctionCall(dbFunc, value)) != null) return false;
         return true;
     }
 

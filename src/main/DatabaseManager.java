@@ -124,13 +124,13 @@ public class DatabaseManager {
         return sb.toString();
     }
 
-    public boolean validateField(DbFunctionCall call) {
+    public String validateField(DbFunctionCall call) {
         try {
             driver.run(call.dbFunc, call.value);
-            return true;
+            return null;
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            return false;
+            return e.getMessage();
         }
     }
 
