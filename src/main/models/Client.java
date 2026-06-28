@@ -1,19 +1,15 @@
 package main.models;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.surrealdb.RecordId;
 
 import main.enums.UserStatus;
 import main.enums.UserType;
-import main.utils.Input;
 
 public class Client extends RegistrableUser {
     private RecordId id;
     private String sector, scale;
-
-    private record InputField(String field, String dbFunc) {}
 
     public Client() {}
 
@@ -59,49 +55,4 @@ public class Client extends RegistrableUser {
         );
     }
 
-    public static Client edit(Client client) {
-        InputField[] fields = {
-            new InputField("Name", null),
-            new InputField("Password", null),
-            new InputField("Email", "fn::check_email"),
-            new InputField("Phone", "fn::check_phone"),
-            new InputField("Address", null),
-            new InputField("Sector", null),
-            new InputField("Scale", "fn::check_scale")
-        };
-
-        Map<String, String> inputMap = new HashMap<>();
-        inputMap.put("Name", client.getName());
-        inputMap.put("Username", client.getUsername());
-        inputMap.put("Password", client.getPassword());
-        inputMap.put("Email", client.getEmail());
-        inputMap.put("NIF", client.getNif());
-        inputMap.put("Phone", client.getPhone());
-        inputMap.put("Address", client.getAddress());
-        inputMap.put("Sector", client.getSector());
-        inputMap.put("Scale", client.getScale());
-
-        for (InputField field : fields) {
-            String current = inputMap.get(field.field());
-            String input = (field.dbFunc() == null)
-                ? Input.getInput(field.field(), current, true)
-                : Input.getInput(field.field(), field.dbFunc(), current);
-            if (input == null) return null;
-            inputMap.put(field.field(), input);
-        }
-
-        return (Client) new Client.Builder()
-            .setSector(inputMap.get("Sector"))
-            .setScale(inputMap.get("Scale"))
-            .setNif(inputMap.get("NIF"))
-            .setPhone(inputMap.get("Phone"))
-            .setAddress(inputMap.get("Address"))
-            .setId(client.getUserId())
-            .setName(inputMap.get("Name"))
-            .setUsername(inputMap.get("Username"))
-            .setPassword(inputMap.get("Password"))
-            .setEmail(inputMap.get("Email"))
-            .setStatus(client.getStatus())
-            .build();
-    }
 }
