@@ -131,8 +131,20 @@ public class RepairDetailState extends DetailState<Repair>{
                     next(new AssignEmployeeState(subject));
                 else if (newStatus == RepairStatus.REJECTED_BY_ADMIN || newStatus == RepairStatus.REJECTED_BY_EMPLOYEE)
                     reject(newStatus);
+                else if(newStatus == RepairStatus.COMPLETED){
+                    String costString = JOptionPane.showInputDialog(null, "Please enter the cost of the repair:", "Repair Cost", JOptionPane.PLAIN_MESSAGE);
+                    if (costString != null && !costString.isBlank()) {
+                        try {
+                            double cost = Double.parseDouble(costString);
+                            updateState(newStatus, cost);
+                            back();
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(null, "Invalid cost format. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
                 else{
-                    updateState(newStatus);
+                    updateState(newStatus, null);
                     back();
                 }
             }
@@ -144,7 +156,7 @@ public class RepairDetailState extends DetailState<Repair>{
         String reason = JOptionPane.showInputDialog(null, "Please enter the reason for rejection:", "Reject Repair", 1);
         if (reason != null) {
             try {
-                DatabaseManager.getInstance().updateRepairState(subject, reason, newStatus.toString());
+                DatabaseManager.getInstance().updateRepairState(subject, reason, newStatus.toString(), null);
                 JOptionPane.showMessageDialog(null, "Repair rejected successfully.");
                 back();
             } catch (Exception e) {
@@ -154,8 +166,8 @@ public class RepairDetailState extends DetailState<Repair>{
 
     }
 
-    private void updateState(RepairStatus newState) {
-        DatabaseManager.getInstance().updateRepairState(subject, "", newState.toString());
+    private void updateState(RepairStatus newState, Double cost) {
+        DatabaseManager.getInstance().updateRepairState(subject, "", newState.toString(), cost);
         JOptionPane.showMessageDialog(null, "Repair state updated successfully.");
     }
 }

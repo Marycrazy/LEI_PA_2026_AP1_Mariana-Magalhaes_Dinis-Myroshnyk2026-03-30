@@ -47,7 +47,7 @@ public class AssignEmployeeState extends ListState<Employee> {
             );
             if (confirm == JOptionPane.YES_OPTION) {
                 DatabaseManager.getInstance().assignEmployee(repair, e);
-                DatabaseManager.getInstance().updateRepairState(repair, "", RepairStatus.ACCEPTED.toString());
+                DatabaseManager.getInstance().updateRepairState(repair, "", RepairStatus.ACCEPTED.toString(), null);
                 JOptionPane.showMessageDialog(null, "Employee assigned. They will be notified.");
                 back();
             }

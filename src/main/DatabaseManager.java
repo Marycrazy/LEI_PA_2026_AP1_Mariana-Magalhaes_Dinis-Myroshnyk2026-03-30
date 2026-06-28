@@ -516,11 +516,13 @@ public class DatabaseManager {
         return repairFromValue(response.take(0).getArray().get(0));
     }
 
-    public void updateRepairState(Repair repair, String reason, String state) {
+    public void updateRepairState(Repair repair, String reason, String state, Double cost) {
         String query = "UPDATE " + repair.getId() + " SET state = '" + state + "'";
         try {
             if (state.equals("REJECTED_BY_ADMIN") || state.equals("REJECTED_BY_EMPLOYEE"))
                 query += ", observations = '" + reason + "'";
+            else if (cost != null)
+                query += ", cost = " + cost.doubleValue();
 
             driver.query(query);
 
