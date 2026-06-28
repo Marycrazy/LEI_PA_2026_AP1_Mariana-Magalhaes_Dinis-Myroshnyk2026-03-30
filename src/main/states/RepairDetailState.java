@@ -87,7 +87,34 @@ public class RepairDetailState extends DetailState<Repair>{
                     break;
             }
         }
+
+        JButton btnPrint = new JButton("Print Statement");
+        btnPrint.addActionListener(e -> printStatement());
+        actions.add(btnPrint);
         return actions;
+    }
+
+    private void printStatement() {
+        List<main.models.Log> logs = DatabaseManager.getInstance().getLogsForRepair(subject.getId());
+
+        if (logs.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No logged actions found for this repair.", "Nothing to print", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        javax.swing.JFileChooser chooser = new javax.swing.JFileChooser();
+        chooser.setSelectedFile(new java.io.File("repair_" + subject.getRepairCode() + "_statement.pdf"));
+        if (chooser.showSaveDialog(null) != javax.swing.JFileChooser.APPROVE_OPTION) return;
+
+        java.io.File outputFile = chooser.getSelectedFile();
+
+        try {
+            main.utils.RepairStatementPrinter.print(subject.getRepairCode(), logs, outputFile);
+            JOptionPane.showMessageDialog(null, "Statement saved to " + outputFile.getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Could not generate PDF: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private JButton statusButton(String label, String actionDescription, RepairStatus newStatus) {

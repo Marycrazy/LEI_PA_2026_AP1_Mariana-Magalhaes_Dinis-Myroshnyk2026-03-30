@@ -247,6 +247,29 @@ public class DatabaseManager {
         return logs;
     }
 
+    public List<Log> getLogsForRepair(RecordId repairId) {
+        String query = "SELECT action, details, created_at, user.name AS userName FROM log "
+                + "WHERE string::contains(details, $repairId) ORDER BY created_at ASC";
+
+        Response response = driver.queryBind(query, Map.of("repairId", repairId.toString()));
+
+        List<Log> logs = new ArrayList<>();
+        for (Value element : response.take(0).getArray()) {
+            var obj = element.getObject();
+            Log log = new Log();
+
+            log.setAction(obj.get("action").getString());
+            log.setCreatedAt(obj.get("created_at").getDateTime());
+            log.setDetails(obj.get("details").getString());
+            log.setUserName(
+                (obj.get("userName") != null && !obj.get("userName").isNone()) ? obj.get("userName").getString()
+                    : "Deleted User");
+
+            logs.add(log);
+        }
+        return logs;
+    }
+
     public List<User> getUsers(String search, User currUser) {
         String query = "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
                 "FROM user WHERE id != $currentId ";

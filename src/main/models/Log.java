@@ -21,5 +21,4 @@ public class Log {
     public void setCreatedAt(ZonedDateTime created_at) {this.created_at = created_at;}
     public void setDetails(String details) {this.details = details;}
     public void setUserName(String user_name) {this.user_name = user_name;}
-
 }
