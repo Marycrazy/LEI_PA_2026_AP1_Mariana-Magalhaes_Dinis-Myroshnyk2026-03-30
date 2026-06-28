@@ -1,9 +1,12 @@
 package main.models;
 
 import java.time.ZonedDateTime;
-
 import com.surrealdb.RecordId;
 
+/**
+ * Audit trail data record mapping specific events or technical system changes
+ * driven by explicit user activity.
+ */
 public class Log {
     private RecordId id;
     private String action;

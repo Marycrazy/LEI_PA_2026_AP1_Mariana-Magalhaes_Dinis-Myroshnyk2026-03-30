@@ -4,14 +4,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-//https://www.devmedia.com.br/utilizando-arquivos-de-propriedades-no-java/25546
-//https://medium.com/@JavaFusion/what-is-a-properties-file-in-java-e955c3adc92f
-// https://www.youtube.com/watch?v=jRigxelb43E
-// https://docs.oracle.com/javase/tutorial/essential/environment/properties.html
+/**
+ * Handles persistent configuration properties for the application, such as database
+ * connection credentials and settings stored in an external file.
+ */
 public class PropertiesManager {
+    /** Relative path to the configuration properties file. */
     private static String file = "./db/config.properties";
+    /** Holds the key-value configuration pairs. */
     private static Properties props;
 
+    /**
+     * Constructs a new PropertiesManager and attempts to load configuration
+     * settings from the default properties file path.
+     */
     public PropertiesManager() {
         props = new Properties();
         try(FileInputStream files = new FileInputStream(file)){
@@ -21,6 +27,11 @@ public class PropertiesManager {
         }
     }
 
+    /**
+     * Saves the current internal properties state back to the configuration file on disk.
+     *
+     * @return {@code true} if the file was saved successfully; {@code false} if an I/O error occurred
+     */
     public boolean saveFile(){
         try(FileOutputStream files = new FileOutputStream(file)){
             props.store(files, "Configuration properties");
@@ -32,14 +43,32 @@ public class PropertiesManager {
         }
     }
 
+    /**
+     * Retrieves the configuration value associated with the specified key string.
+     *
+     * @param key the property key name to look up
+     * @return the string value matching the key, or {@code null} if the key does not exist
+     */
     public String getProperty(String key){
         return props.getProperty(key);
     }
 
+    /**
+     * Sets or updates a configuration property key to a new specified string value.
+     *
+     * @param key   the property key name to set
+     * @param value the property value to assign to the key
+     */
     public void setProperty(String key, String value){
         props.setProperty(key, value);
     }
 
+    /**
+     * Validates whether all mandatory database connection properties are populated
+     * within the loaded configuration.
+     *
+     * @return {@code true} if all essential keys (connect, username, password, namespace, database) are present; {@code false} otherwise
+     */
     public boolean hasProperties(){
         return getProperty("connect") != null && getProperty("username") != null && getProperty("password") != null && getProperty("namespace") != null && getProperty("database") != null;
     }

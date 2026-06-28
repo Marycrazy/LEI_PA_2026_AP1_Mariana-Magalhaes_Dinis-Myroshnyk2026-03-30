@@ -3,6 +3,10 @@ package main.models;
 import com.surrealdb.RecordId;
 import main.utils.Input;
 
+/**
+ * Represents a spare part that can be used in equipment repairs, tracked
+ * with a stock quantity.
+ */
 public class Part {
     private RecordId id;
     private String designation, manufacturer;
@@ -10,6 +14,13 @@ public class Part {
 
     public Part() {}
 
+    /**
+     * Creates a new part with the given details.
+     *
+     * @param designation    the part's name/description
+     * @param manufacturer   the part's manufacturer
+     * @param stock_quantity the quantity currently in stock
+     */
     public Part(String designation, String manufacturer, int stock_quantity) {
         this.designation = designation;
         this.manufacturer = manufacturer;
@@ -39,6 +50,12 @@ public class Part {
         }
     }
 
+    /**
+     * Interactively prompts for and creates a new part via the console.
+     *
+     * @return the newly created part, or {@code null} if the user cancelled
+     *         or entered invalid input
+     */
     public static Part create() {
         String designation  = Input.getInput("Designation");
         if (designation == null) return null;
@@ -52,6 +69,14 @@ public class Part {
         return new Part(designation, manufacturer, quantity);
     }
 
+    /**
+     * Interactively prompts for updated values for an existing part via the
+     * console, pre-filled with its current values.
+     *
+     * @param part the part to edit
+     * @return a new {@code Part} with the updated values and the same id,
+     *         or {@code null} if the user cancelled or entered invalid input
+     */
     public static Part edit(Part part) {
         String designation  = Input.getInput("Designation",  part.getDesignation(),  true);
         if (designation == null) return null;

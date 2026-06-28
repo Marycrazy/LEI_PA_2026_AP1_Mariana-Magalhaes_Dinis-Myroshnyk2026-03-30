@@ -1,13 +1,22 @@
 package main.models;
 
-
 import main.enums.UserStatus;
 import main.enums.UserType;
 
+/**
+ * Represents an administrative user with elevated system privileges.
+ * Inherits directly from the base {@link User} class.
+ */
 public class Admin extends User {
 
+    /**
+     * Constructs a default Admin instance.
+     */
     public Admin() {}
 
+    /**
+     * Builder implementation dedicated to constructing {@link Admin} instances.
+     */
     public static class Builder extends User.Builder<Builder> {
         @Override
         protected Builder self() { return this; }
@@ -26,5 +35,4 @@ public class Admin extends User {
             return admin;
         }
     }
-
 }
