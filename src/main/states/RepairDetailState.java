@@ -70,7 +70,12 @@ public class RepairDetailState extends DetailState<Repair>{
                 case "REJECTED_BY_EMPLOYEE":
                     actions.add(statusButton("Approve and assign another employee", "assign another employee", RepairStatus.ACCEPTED));
                     actions.add(statusButton("Reject", "reject this repair", RepairStatus.REJECTED_BY_ADMIN));
+                    actions.add(statusButton("Archive", "archive this repair", RepairStatus.ARCHIVED));
                     break;
+                case "REJECTED_BY_ADMIN":
+                    actions.add(statusButton("Archive", "archive this repair", RepairStatus.ARCHIVED));
+                    break;
+                
             }
         }else if (user.getType().equals("EMPLOYEE")) {
             switch (subject.getState()) {
@@ -96,8 +101,8 @@ public class RepairDetailState extends DetailState<Repair>{
                 JOptionPane.YES_NO_OPTION
             );
             if (confirm == JOptionPane.YES_OPTION) {
-                if (user.getType().equals("ADMIN") && newStatus == RepairStatus.ACCEPTED) 
-                    System.out.println("admin aceita e escolhe um employee");  
+                if (user.getType().equals("ADMIN") && newStatus == RepairStatus.ACCEPTED)
+                    next(new AssignEmployeeState(subject)); 
                 else if (newStatus == RepairStatus.REJECTED_BY_ADMIN || newStatus == RepairStatus.REJECTED_BY_EMPLOYEE)
                     reject(newStatus);
                 else{

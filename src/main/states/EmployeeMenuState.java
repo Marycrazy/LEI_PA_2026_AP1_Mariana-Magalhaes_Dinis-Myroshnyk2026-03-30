@@ -8,8 +8,8 @@ public class EmployeeMenuState extends State {
     @Override
     public JPanel buildView() {
         return new MenuBuilder(user)
-            .addButton("View Repairs", "View your assigned repairs", () -> JOptionPane.showMessageDialog(null, "View Repairs - TODO")) // temporary button
-            // .addButton("View Repairs", "View your assigned repairs", () -> next(new ListRepairsState())) // TODO: uncomment when ListRepairsState is ready
+            .addButton("View Repairs", "View your assigned repairs", () -> next(new ListRepairsState()))
+            
             .addButton("Notifications", "View notifications", () -> next(new NotificationListState()))
             .addButton("Change Profile", "Edit your account details", () -> JOptionPane.showMessageDialog(null, "Change Profile - TODO")) // temporary button
             // .addButton("Change Profile", "Edit your account details", () -> next(new EditUserState(user))) // TODO: uncomment when EditUserState is ready
