@@ -12,10 +12,21 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import main.PropertiesManager;
 
+/**
+ * Orchestrator service class that handles sending system confirmation emails
+ * via secure SMTP channels.
+ */
 public class Email {
 
     private static Session session;
 
+    /**
+     * Internal utility to establish an authenticated security parameters handshake connection
+     * workspace instance linking with standard Gmail SMTP relays.
+     *
+     * @param props configuration settings provider containing core service identity keys
+     * @return a new authenticated mailing workspace session setup pointer {@link Session}
+     */
     private static Session buildSession(PropertiesManager props) {
         String username = props.getProperty("email");
         String password = props.getProperty("key");
@@ -34,6 +45,15 @@ public class Email {
         });
     }
 
+    /**
+     * Sends a transactional email notifying a user that their account creation request
+     * is pending review by an administrator.
+     *
+     * @param props     configuration manager holding target credentials properties maps
+     * @param toAddress destination address string where message delivery is directed
+     * @param userName  recipient profile display identification name string
+     * @throws MessagingException if server authentication fails or network routing drops the transaction
+     */
     public static void sendRegistrationEmail(PropertiesManager props, String toAddress, String userName)
             throws MessagingException {
         if (session == null) session = buildSession(props);

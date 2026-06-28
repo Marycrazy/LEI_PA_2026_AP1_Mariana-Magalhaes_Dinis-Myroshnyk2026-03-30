@@ -2,20 +2,30 @@ package main.models;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
-
 import com.surrealdb.RecordId;
-
 import main.enums.UserStatus;
 import main.enums.UserType;
 
-
-public  class Employee extends RegistrableUser {
+/**
+ * Represents an employee within the system, expanding on {@link RegistrableUser}
+ * with professional details like specialization and start date.
+ */
+public class Employee extends RegistrableUser {
+    /** The specific database record ID for the employee role table. */
     private RecordId id;
+    /** The technical or operational focus of the employee. */
     private String specialization;
+    /** The date and time when the employee officially started work. */
     private ZonedDateTime start_date;
 
+    /**
+     * Constructs a default Employee instance.
+     */
     public Employee() {}
 
+    /**
+     * Builder pattern implementation for creating structured {@link Employee} instances.
+     */
     public static class Builder extends RegistrableUser.Builder<Builder> {
         private String specialization;
         private ZonedDateTime start_date;
@@ -52,10 +62,15 @@ public  class Employee extends RegistrableUser {
 
     public void setEmployeeId(RecordId id) { this.id = id; }
 
+    /**
+     * Maps employee-specific fields for SurrealDB operations.
+     *
+     * @param employee the employee instance
+     * @return a map containing the specialization properties
+     */
     public static Map<String, Object> toMap(Employee employee) {
         return Map.of(
             "specialization", employee.getSpecialization()
         );
     }
-
 }

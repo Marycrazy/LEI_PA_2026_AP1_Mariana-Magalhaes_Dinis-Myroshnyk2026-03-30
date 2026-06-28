@@ -1,18 +1,28 @@
 package main.models;
 
 import java.util.Map;
-
 import com.surrealdb.RecordId;
-
 import main.enums.UserStatus;
 import main.enums.UserType;
 
+/**
+ * Represents a client account, extending {@link RegistrableUser} with commercial
+ * metrics such as sector and business scale.
+ */
 public class Client extends RegistrableUser {
+    /** The specific database record ID for the client table. */
     private RecordId id;
+    /** The commercial industry sector and organization scale. */
     private String sector, scale;
 
+    /**
+     * Constructs a default Client instance.
+     */
     public Client() {}
 
+    /**
+     * Builder pattern implementation for cleanly generating {@link Client} instances.
+     */
     public static class Builder extends RegistrableUser.Builder<Builder> {
         private String sector, scale;
 
@@ -48,11 +58,16 @@ public class Client extends RegistrableUser {
 
     public void setClientId(RecordId id) { this.id = id; }
 
+    /**
+     * Maps client-specific attributes for database operations.
+     *
+     * @param client the client entity to map
+     * @return a map with sector and scale entries
+     */
     public static Map<String, Object> toMap(Client client) {
         return Map.of(
             "sector", client.getSector(),
             "scale", client.getScale()
         );
     }
-
 }

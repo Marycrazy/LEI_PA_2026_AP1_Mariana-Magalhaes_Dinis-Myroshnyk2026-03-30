@@ -18,12 +18,19 @@ import main.DatabaseManager;
 import main.models.User;
 import main.states.State;
 
+/**
+ * UI pattern helper for constructing standardized modular application menu panels with a center grid panel
+ * and an optional persistent header for notifications and profile information.
+ */
 public class MenuBuilder {
     private final JPanel root = new JPanel(new BorderLayout());
     private final JPanel centerPanel = new JPanel(new GridBagLayout());
     private final GridBagConstraints gbc = new GridBagConstraints();
     private int row = 0;
 
+    /**
+     * Prepares a standard menu panel assembly with center item anchoring rules.
+     */
     public MenuBuilder() {
         centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 40, 10, 40));
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -34,6 +41,12 @@ public class MenuBuilder {
         root.add(centerPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Instantiates an active custom user menu workspace panel including an active top toolbar
+     * detailing pending system notification counters.
+     *
+     * @param user the currently authenticated active session context account
+     */
     public MenuBuilder(User user) {
         this();
 
@@ -64,6 +77,14 @@ public class MenuBuilder {
         }
     }
 
+    /**
+     * Appends an interactive navigation or operation push button element onto the center grid block stack.
+     *
+     * @param label   the title string printed on the button layout face
+     * @param tooltip contextual hover tip helper documentation text
+     * @param onClick an event callback routine method executed upon triggering the button action
+     * @return this menu builder instance for chaining calls
+     */
     public MenuBuilder addButton(String label, String tooltip, Runnable onClick) {
         JButton button = new JButton(label);
         button.setToolTipText(tooltip);
@@ -74,6 +95,11 @@ public class MenuBuilder {
         return this;
     }
 
+    /**
+     * Compiles and outputs the configured composite panel view hierarchy containing the complete window layout tree structures.
+     *
+     * @return a single managed layout container {@link JPanel}
+     */
     public JPanel build() {
         return root;
     }

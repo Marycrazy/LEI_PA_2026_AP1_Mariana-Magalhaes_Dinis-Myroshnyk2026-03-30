@@ -1,6 +1,16 @@
 package main.utils;
 
+/**
+ * Internal text-formatting processor targeting multi-line word wrap alignments for console interfaces.
+ */
 public class Text {
+    /**
+     * Wraps paragraphs into structured fragments satisfying string token boundaries.
+     *
+     * @param text     the complete continuous string block payload requiring parsing
+     * @param maxWidth maximum character column margin width ceiling
+     * @return a single formatted string with line breaks
+     */
     public static String wrap(String text, int maxWidth) {
         String[] lines = text.split("\n");
         StringBuilder wrapped = new StringBuilder();

@@ -14,12 +14,25 @@ import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 import main.models.Log;
 
+/**
+ * Utility class for exporting historical repair milestones and log events into a
+ * formatted PDF statement using Apache PDFBox.
+ */
 public class RepairStatementPrinter {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final float MARGIN = 50;
     private static final float LINE_HEIGHT = 16;
     private static final float FONT_SIZE = 10;
 
+    /**
+     * Generates a PDF document compiling the history log records for a given repair code.
+     * Automatically handles multi-page text wrapping.
+     *
+     * @param repairCode the unique identifier string of the technical repair job
+     * @param logs       the chronological list of event logs associated with the repair
+     * @param outputFile the destination file pointer on disk where the PDF will be saved
+     * @throws IOException if a file write error or PDF stream manipulation failure occurs
+     */
     public static void print(String repairCode, List<Log> logs, File outputFile) throws IOException {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
@@ -31,15 +44,14 @@ public class RepairStatementPrinter {
 
             float y = page.getMediaBox().getHeight() - MARGIN;
 
+            content.setFont(bold, 16);
             content.beginText();
-            content.setFont(bold, 14);
             content.newLineAtOffset(MARGIN, y);
-            content.showText("Repair Statement - " + repairCode);
+            content.showText("Repair Statement: " + repairCode);
             content.endText();
             y -= LINE_HEIGHT * 2;
 
             content.setFont(font, FONT_SIZE);
-
             for (Log log : logs) {
                 String line = "[" + log.getCreatedAt().format(DATE_FORMAT) + "] "
                     + log.getUserName() + " (" + log.getAction() + "): " + log.getDetails();
@@ -67,6 +79,14 @@ public class RepairStatementPrinter {
         }
     }
 
+    /**
+     * Utility method to wrap a continuous line of text into a list of substring blocks
+     * based on a maximum horizontal character boundary constraint.
+     *
+     * @param text     the raw unwrapped input string
+     * @param maxChars the maximum allowed characters per single line row
+     * @return a list of wrapped standalone text lines
+     */
     private static List<String> wrap(String text, int maxChars) {
         List<String> lines = new java.util.ArrayList<>();
         StringBuilder current = new StringBuilder();
