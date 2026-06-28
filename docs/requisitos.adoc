@@ -8,7 +8,7 @@
 
 = Tabelas de Requisitos
 António Dinis Myroshnyk (nº 2021157297); Mariana Pais Jorge Magalhães (nº 2022147454)
-:revdate: 2026/06/03
+:revdate: 2026/06/28
 
 == Proj 1
 
@@ -41,7 +41,7 @@ António Dinis Myroshnyk (nº 2021157297); Mariana Pais Jorge Magalhães (nº 20
 | R24 | Cada reparação está associada a um equipamento e realizada por um funcionário | Feito
 | R25 | Clientes submetem pedidos de reparação | Feito
 | R26 | Pedido de reparação aprovado pelo gestor, que atribui funcionário | Feito
-| R27 | Funcionários gerem o processo de reparação |
+| R27 | Funcionários gerem o processo de reparação | Feito
 | R28 | Equipamento caracterizado por marca, modelo, SKU, data de fabrico, lote, data de submissão e data de reparação | Feito
 | R29 | SKU único, valor aleatório entre 1 e 1 000 000 | Feito
 | R30 | Verificar duplicação de código de modelo ao inserir equipamento | Feito
@@ -75,14 +75,14 @@ António Dinis Myroshnyk (nº 2021157297); Mariana Pais Jorge Magalhães (nº 20
 | R58 | Gestores listam pedidos de reparação ordenados por data ou número | Feito
 | R59 | Gestores listam pedidos de reparação não finalizados | Feito
 | R60 | Gestores pesquisam pedidos por número, estado ou cliente | Feito
-| R61 | Gestores pesquisam pedidos por intervalo temporal |
+| R61 | Gestores pesquisam pedidos por intervalo temporal | Feito
 | R62 | Gestores pesquisam equipamentos por marca ou código | Feito
-| R63 | Clientes listam os seus pedidos ordenados por data ou número |
-| R64 | Clientes pesquisam os seus pedidos por número ou estado |
-| R65 | Clientes listam os seus equipamentos ordenados por marca ou código |
-| R66 | Clientes pesquisam os seus equipamentos por marca ou código |
-| R67 | Funcionários listam os seus pedidos ordenados por data ou número |
-| R68 | Funcionários pesquisam os seus pedidos por número ou estado |
+| R63 | Clientes listam os seus pedidos ordenados por data ou número | Feito
+| R64 | Clientes pesquisam os seus pedidos por número ou estado | Feito
+| R65 | Clientes listam os seus equipamentos ordenados por marca ou código | Feito
+| R66 | Clientes pesquisam os seus equipamentos por marca ou código | Feito
+| R67 | Funcionários listam os seus pedidos ordenados por data ou número | Feito
+| R68 | Funcionários pesquisam os seus pedidos por número ou estado | Feito
 | R69 | Acesso a base de dados relacional para gerir toda a informação | Feito
 | R70 | Acesso restringido com credenciais armazenadas na base de dados | Feito
 | R71 | Parâmetros de acesso à base de dados armazenados em ficheiro Properties | Feito
@@ -90,8 +90,8 @@ António Dinis Myroshnyk (nº 2021157297); Mariana Pais Jorge Magalhães (nº 20
 | [.line-through]#R73# | [.line-through]#Calcular e apresentar tempo de execução da aplicação# | [.line-through]#Feito#
 | [.line-through]#R74# | [.line-through]#Manter informação genérica do sistema como data da última execução e número de execuções# | [.line-through]#Feito#
 | R75 | Registo de ações (log) dos utilizadores armazenado na base de dados | Feito
-| R76 | Listar conteúdo do log através da aplicação |
-| R77 | Pesquisar registos por utilizador no log |
+| R76 | Listar conteúdo do log através da aplicação | Feito
+| R77 | Pesquisar registos por utilizador no log | Feito
 | R78 | Aplicação estruturada segundo paradigma Orientado a Objetos em Java | Feito
 | R79 | Implementar estruturas de armazenamento otimizadas | Feito
 | R80 | Validar todas as leituras de dados do utilizador | Feito
@@ -105,18 +105,18 @@ António Dinis Myroshnyk (nº 2021157297); Mariana Pais Jorge Magalhães (nº 20
 [cols="^1,^3,^1"]
 |===
 | *Requisito* | *Descrição*	| *Estado*
-| G1 | Completar e corrigir a aplicação iniciada no projeto 1 |
-| G2 | Utilizadores possuem foto, que pode ser inserida ou alterada em qualquer momento. Caso não seja definida, deve existir uma imagem por defeito no sistema |
+| G1 | Completar e corrigir a aplicação iniciada no projeto 1 | Feito
+| G2 | Utilizadores possuem foto, que pode ser inserida ou alterada em qualquer momento. Caso não seja definida, deve existir uma imagem por defeito no sistema | Feito
 | G3 | No momento de registo deve ser enviado um email a informar que o registo foi realizado | Feito
 | G4 | Em todos os formulários de inserção de dados deve existir um campo adicional (JTextField ou JAreaField) para inserir observações ou comentários |
-| G5 | Após autenticação, deve surgir uma caixa de diálogo ou zona em realce na janela principal a indicar a existência de notificações, caso existam |
-| G6 | Deve ser possível imprimir um extrato das ações de um processo (datas e utilizadores que realizaram ações) |
-| G7 | Todas as listagens devem incluir barras de deslocamento |
-| G8 | Toda a interação com o utilizador deve ser realizada através de interfaces gráficas (JavaSwing / JavaFX). As interfaces devem ser intuitivas, limpas e claras |
-| G9 | Devem ser usadas componentes gráficas adequadas à informação: JList para listagens simples, JTable para listagens estruturadas |
-| G10 | Os formulários devem possuir tooltips de ajuda sobre cada elemento da interface |
+| G5 | Após autenticação, deve surgir uma caixa de diálogo ou zona em realce na janela principal a indicar a existência de notificações, caso existam | Feito
+| G6 | Deve ser possível imprimir um extrato das ações de um processo (datas e utilizadores que realizaram ações) | Feito
+| G7 | Todas as listagens devem incluir barras de deslocamento | Feito
+| G8 | Toda a interação com o utilizador deve ser realizada através de interfaces gráficas (JavaSwing / JavaFX). As interfaces devem ser intuitivas, limpas e claras | Feito
+| G9 | Devem ser usadas componentes gráficas adequadas à informação: JList para listagens simples, JTable para listagens estruturadas | Feito
+| G10 | Os formulários devem possuir tooltips de ajuda sobre cada elemento da interface | Feito
 | [.line-through]#G11# | [.line-through]#Não é necessário apresentar graficamente mensagens de boas-vindas, de encerramento, nem estatísticas de utilização# | [.line-through]#N/A#
 | [.line-through]#G12# | [.line-through]#Não é necessário implementar graficamente a manipulação de peças e testes# | [.line-through]#N/A#
 | [.line-through]#G13# | [.line-through]#Não é necessário gestores poderem criar outros gestores através da interface gráfica# | [.line-through]#N/A#
-| G14 | O código deve estar harmonizado: a mesma funcionalidade deve estar implementada de forma idêntica e consistente ao longo de todo o código |
+| G14 | O código deve estar harmonizado: a mesma funcionalidade deve estar implementada de forma idêntica e consistente ao longo de todo o código | Feito
 |===

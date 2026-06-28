@@ -177,7 +177,9 @@ public class UserCreateState extends State {
 
     notifyIfPending();
 
-    JOptionPane.showMessageDialog(null, capitalize(type) + " created! Await for admin approval.", "Success", JOptionPane.INFORMATION_MESSAGE);
+    if (status.equals(UserStatus.PENDING.toString()))
+        JOptionPane.showMessageDialog(null, capitalize(type) + " created! Await for admin approval.", "Success", JOptionPane.INFORMATION_MESSAGE);
+    else JOptionPane.showMessageDialog(null, capitalize(type) + " created!", "Success", JOptionPane.INFORMATION_MESSAGE);
     back();
     back();
 }

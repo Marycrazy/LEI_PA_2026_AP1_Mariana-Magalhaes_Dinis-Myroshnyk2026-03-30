@@ -4,6 +4,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -467,8 +468,6 @@ public class DatabaseManager {
         return list;
     }
 
-    // ------------------- TODO: --------------------
-
     public void saveRepair(Equipment equipment, User user) {
         Transaction transaction = driver.beginTransaction();
 
@@ -493,22 +492,55 @@ public class DatabaseManager {
         }
     }
 
-    public List<Repair> getRepairs(String search, String filterState, User user) {
+    public List<Repair> getRepairs(String search, String filterState, ZonedDateTime startDate, ZonedDateTime endDate, User user) {
         String query = "SELECT * FROM repair WHERE 1 = 1 ";
+        Map<String, Object> params = new HashMap<>();
+
         if (!user.getType().equals("ADMIN"))
             query += " AND id IN (SELECT VALUE out FROM user_repair WHERE in = " + user.getUserId() + ")";
+
         if (!filterState.isEmpty())
             query += "AND state = '" + filterState + "' ";
-        if (!search.isEmpty())
-            query += "AND (repair_code ~ $search OR (<-requested.in.name)[0] ~ $search) ";
-        Response response = search.isEmpty()
+
+        if (!search.isEmpty()) {
+            query += "AND (string::contains(string::lowercase(repair_code), string::lowercase($search)) "
+                + "OR id IN (SELECT VALUE out FROM user_repair WHERE in.type = 'CLIENT' AND string::contains(string::lowercase(in.name), string::lowercase($search)))) ";
+            params.put("search", search);
+        }
+
+        if (startDate != null) {
+            query += "AND start_date >= $startDate ";
+            params.put("startDate", startDate);
+        }
+
+        if (endDate != null) {
+            query += "AND start_date <= $endDate ";
+            params.put("endDate", endDate);
+        }
+
+        Response response = params.isEmpty()
                 ? driver.query(query)
-                : driver.queryBind(query, Map.of("search", search));
+                : driver.queryBind(query, params);
 
         List<Repair> list = new ArrayList<>();
         for (Value element : response.take(0).getArray())
             list.add(repairFromValue(element));
+
+        attachClientNames(list);
         return list;
+    }
+
+    private void attachClientNames(List<Repair> repairs) {
+        for (Repair repair : repairs) {
+            String repairId = repair.getId().toString();
+            String nameQuery = "SELECT VALUE in.name FROM user_repair WHERE out = " + repairId + " AND in.type = 'CLIENT'";
+            Response response = driver.query(nameQuery);
+
+            for (Value element : response.take(0).getArray()) {
+                repair.setClientName(element.getString());
+                break;
+            }
+        }
     }
 
     public Repair fetchRepair(RecordId id) {
@@ -594,6 +626,7 @@ public class DatabaseManager {
         Value startDate = obj.get("start_date");
         Value endDate = obj.get("end_date");
         Value cost = obj.get("cost");
+        Value clientName = obj.get("clientName");
 
         if (repairCode != null && !repairCode.isNone())
             repair.setRepairCode(repairCode.getString());
@@ -605,6 +638,8 @@ public class DatabaseManager {
             repair.setEndDate(endDate.getDateTime());
         if (cost != null && !cost.isNull())
             repair.setCost(cost.getDouble());
+        if (clientName != null && !clientName.isNone())
+            repair.setClientName(clientName.getString());
 
         return repair;
     }

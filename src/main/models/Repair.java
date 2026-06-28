@@ -12,6 +12,8 @@ public class Repair {
     private ZonedDateTime end_date;
     private double cost;
 
+    private String client_name; // not stored in the db
+
     public Repair() {}
 
     public RecordId getId() { return id; }
@@ -22,6 +24,8 @@ public class Repair {
     public ZonedDateTime getEndDate() { return end_date; }
     public double getCost() { return cost; }
 
+    public String getClientName() { return client_name; }
+
     public void setId(RecordId id) { this.id = id; }
     public void setRepairCode(String code) { this.repair_code = code; }
     public void setState(String state) { this.state = state; }
@@ -29,4 +33,6 @@ public class Repair {
     public void setStartDate(ZonedDateTime start_date) { this.start_date = start_date; }
     public void setEndDate(ZonedDateTime end_date) { this.end_date = end_date; }
     public void setCost(double cost) { this.cost = cost; }
+
+    public void setClientName(String client_name) { this.client_name = client_name; }
 }
