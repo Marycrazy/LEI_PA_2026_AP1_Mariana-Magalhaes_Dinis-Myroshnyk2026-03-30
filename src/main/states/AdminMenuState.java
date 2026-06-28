@@ -8,13 +8,10 @@ public class AdminMenuState extends State {
     public JPanel buildView() {
         return new MenuBuilder(user)
             .addButton("Manage Users", "Manage system users", () -> next(new ManageUsersMenuState()))
-            .addButton("Repairs", "View and manage repairs", () -> next(new RepairListState())) // temporary button
-            // .addButton("Repairs", "View and manage repairs", () -> next(new ListRepairsState())) // TODO: uncomment when ListRepairsState is ready
+            .addButton("Repairs", "View and manage repairs", () -> next(new RepairListState()))
             .addButton("Parts", "Manage available parts", () -> next(new ManagePartsMenuState()))
-            // .addButton("Parts", "Manage available parts", () -> next(new ManagePartsMenuState())) // TODO: uncomment when ManagePartsMenuState is ready
             .addButton("Notifications", "View notifications", () -> next(new NotificationListState()))
             .addButton("Action Log", "View action log", () -> next(new LogsListState()))
-            // .addButton("Action Log", "View action log", () -> next(new ListActionLogState())) // TODO: uncomment when ActionLogState is ready
             .addButton("Change Profile", "Edit your account details", () -> next(new UserEditState(user)))
             .addButton("Logout", "Logout", () -> { State.user = null; back(); })
             .build();

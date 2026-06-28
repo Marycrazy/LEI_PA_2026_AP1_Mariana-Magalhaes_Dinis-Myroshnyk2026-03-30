@@ -10,7 +10,7 @@ public class EquipmentMenuState extends State {
     public JPanel buildView() {
         return new MenuBuilder()
             .addButton("List my equipment", "List my equipment", () -> next(new EquipmentListState(user)))
-            .addButton("Add equipment", "submit a new equipment", () -> JOptionPane.showMessageDialog(null, "equipment - adicionar")) // TODO: temporary button
+            .addButton("Add equipment", "Submit a new equipment", () -> JOptionPane.showMessageDialog(null, "equipment - adicionar")) // TODO: temporary button
             .addButton("Back", "Return to previous menu", this::back)
             .build();
     }
