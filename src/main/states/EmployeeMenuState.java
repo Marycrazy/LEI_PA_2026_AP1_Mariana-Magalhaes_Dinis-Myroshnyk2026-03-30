@@ -9,7 +9,7 @@ public class EmployeeMenuState extends State {
         return new MenuBuilder(user)
             .addButton("View Repairs", "View your assigned repairs", () -> next(new RepairListState()))
             .addButton("Notifications", "View notifications", () -> next(new NotificationListState()))
-            .addButton("Change Profile", "Edit your account details", () -> next(new EditUserState(user)))
+            .addButton("Change Profile", "Edit your account details", () -> next(new UserEditState(user)))
             .addButton("Logout", "Logout", () -> { State.user = null; back(); })
             .build();
     }

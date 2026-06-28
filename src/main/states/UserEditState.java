@@ -26,7 +26,7 @@ import main.utils.FormBuilder;
 import main.utils.FormValidator;
 import main.utils.ImageService;
 
-public class EditUserState extends State {
+public class UserEditState extends State {
     private final User subject;
     private static final int PHOTO_SIZE = 150;
 
@@ -52,7 +52,7 @@ public class EditUserState extends State {
     private File selectedImage;
     private JLabel lblPhoto;
 
-    public EditUserState(User subject) {
+    public UserEditState(User subject) {
         this.subject = subject;
     }
 

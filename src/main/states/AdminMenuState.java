@@ -15,7 +15,7 @@ public class AdminMenuState extends State {
             .addButton("Notifications", "View notifications", () -> next(new NotificationListState()))
             .addButton("Action Log", "View action log", () -> next(new LogsListState()))
             // .addButton("Action Log", "View action log", () -> next(new ListActionLogState())) // TODO: uncomment when ActionLogState is ready
-            .addButton("Change Profile", "Edit your account details", () -> next(new EditUserState(user)))
+            .addButton("Change Profile", "Edit your account details", () -> next(new UserEditState(user)))
             .addButton("Logout", "Logout", () -> { State.user = null; back(); })
             .build();
     }
