@@ -25,7 +25,7 @@ Todas as bibliotecas devem ser colocadas dentro da pasta `lib/` do projeto.
 ## Estrutura esperada
 
 Após descarregar todos os ficheiros, a estrutura da pasta `lib/` deve ser a seguinte:
-
+```
 projeto/
    ├── lib/
    │   ├── surrealdb-2.0.0.jar
@@ -34,7 +34,7 @@ projeto/
    │   └── pdfbox-app-3.0.7.jar
    ├── src/
    └── ...
-
+```
 ## Executar a aplicação
 
 O ficheiro JAR da aplicação deve ser colocado na mesma diretoria que a pasta `lib/` e executado com o seguinte comando:
