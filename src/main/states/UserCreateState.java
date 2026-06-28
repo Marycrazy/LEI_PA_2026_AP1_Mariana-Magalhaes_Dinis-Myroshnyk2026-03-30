@@ -27,7 +27,7 @@ import main.utils.FormBuilder;
 import main.utils.FormValidator;
 import main.utils.ImageService;
 
-public class CreateUserState extends State {
+public class UserCreateState extends State {
     private final String type;
     private final String status;
     private PropertiesManager props = new PropertiesManager();
@@ -55,7 +55,7 @@ public class CreateUserState extends State {
     private File selectedImage;
     private JLabel lblImageStatus = new JLabel("No image selected");
 
-    public CreateUserState(String type, String status) {
+    public UserCreateState(String type, String status) {
         this.type = type;
         this.status = status;
     }

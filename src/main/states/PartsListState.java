@@ -10,7 +10,7 @@ import javax.swing.JTextField;
 import main.models.Part;
 import main.DatabaseManager;
 
-public class ListPartsState extends ListState<Part> {
+public class PartsListState extends ListState<Part> {
     private String search = "";
 
     @Override

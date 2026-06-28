@@ -11,7 +11,7 @@ import javax.swing.JTextField;
 import main.DatabaseManager;
 import main.models.Repair;
 
-public class ListRepairsState extends ListState<Repair> {
+public class RepairListState extends ListState<Repair> {
     private String search      = "";
     private String filterState = "";
 

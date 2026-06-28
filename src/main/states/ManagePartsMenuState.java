@@ -9,7 +9,7 @@ public class ManagePartsMenuState extends State {
     @Override
     public JPanel buildView() {
         return new MenuBuilder(user)
-            .addButton("List Parts", "List all Parts", () -> next(new ListPartsState()))
+            .addButton("List Parts", "List all Parts", () -> next(new PartsListState()))
             .addButton("Add Parts", "Add Parts", () -> JOptionPane.showMessageDialog(null, "Peças - adicionar")) // temporary button
             .addButton("Back", "Return to previous menu", this::back)
             .build();
