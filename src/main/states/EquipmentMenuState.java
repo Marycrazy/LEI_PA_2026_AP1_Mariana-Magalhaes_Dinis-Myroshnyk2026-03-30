@@ -8,9 +8,9 @@ import main.utils.MenuBuilder;
 public class EquipmentMenuState extends State {
     @Override
     public JPanel buildView() {
-        return new MenuBuilder(user)
+        return new MenuBuilder()
             .addButton("List my equipment", "List my equipment", () -> next(new EquipmentListState(user)))
-            .addButton("Add equipment", "submit a new equipment", () -> JOptionPane.showMessageDialog(null, "equipment - adicionar")) // temporary button
+            .addButton("Add equipment", "submit a new equipment", () -> JOptionPane.showMessageDialog(null, "equipment - adicionar")) // TODO: temporary button
             .addButton("Back", "Return to previous menu", this::back)
             .build();
     }

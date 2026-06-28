@@ -41,6 +41,6 @@ public class FormValidator {
     }
 
     public String getErrorMessage() {
-        return "Please fill in: " + String.join(", ", errors);
+        return String.join("\n", errors);
     }
 }

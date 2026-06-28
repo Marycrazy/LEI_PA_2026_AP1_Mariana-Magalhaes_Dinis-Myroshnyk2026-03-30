@@ -30,9 +30,14 @@ import main.models.Part;
 import main.models.Log;
 
 public class DatabaseManager {
-    public record UserCredentials(String username, String password) {}
-    public record DbFunctionCall(String dbFunc, String value) {}
-    public record NotificationRequest(String content, Object target) {}
+    public record UserCredentials(String username, String password) {
+    }
+
+    public record DbFunctionCall(String dbFunc, String value) {
+    }
+
+    public record NotificationRequest(String content, Object target) {
+    }
 
     private static DatabaseManager instance;
     private Surreal driver;
@@ -62,7 +67,9 @@ public class DatabaseManager {
         driver.useNs(namespace).useDb(database);
     }
 
-    public void close() { driver.close(); }
+    public void close() {
+        driver.close();
+    }
 
     public boolean hasAdmin() {
         String query = "SELECT count() FROM user WHERE type = 'ADMIN' AND status = 'ACTIVE' GROUP ALL";
@@ -70,7 +77,9 @@ public class DatabaseManager {
         return response.take(0).getArray().get(0).getObject().get("count").getLong() > 0;
     }
 
-    public boolean isConfigured() { return props.hasProperties(); }
+    public boolean isConfigured() {
+        return props.hasProperties();
+    }
 
     public void saveUser(User user) {
         Transaction transaction = driver.beginTransaction();
@@ -92,12 +101,14 @@ public class DatabaseManager {
                     query = "CREATE employee CONTENT " + toSQL(Employee.toMap(employee));
                     response = transaction.query(query);
                     employee.setEmployeeId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
-                    transaction.query("RELATE " + regUser.getRegistrableUserId() + " -> of_type -> " + employee.getEmployeeId());
+                    transaction.query(
+                            "RELATE " + regUser.getRegistrableUserId() + " -> of_type -> " + employee.getEmployeeId());
                 } else if (regUser instanceof Client client) {
                     query = "CREATE client CONTENT " + toSQL(Client.toMap(client));
                     response = transaction.query(query);
                     client.setClientId(response.take(0).getArray().get(0).getObject().get("id").getRecordId());
-                    transaction.query("RELATE " + regUser.getRegistrableUserId() + " -> of_type -> " + client.getClientId());
+                    transaction.query(
+                            "RELATE " + regUser.getRegistrableUserId() + " -> of_type -> " + client.getClientId());
                 }
             }
 
@@ -114,12 +125,13 @@ public class DatabaseManager {
         StringBuilder sb = new StringBuilder("{");
         map.forEach((key, value) -> {
             sb.append(key).append(": ");
-            if (value instanceof String) sb.append("'").append(value).append("', ");
+            if (value instanceof String)
+                sb.append("'").append(value).append("', ");
             else if (value instanceof ZonedDateTime) {
                 ZonedDateTime utc = ((ZonedDateTime) value).withZoneSameInstant(ZoneOffset.UTC);
                 sb.append("d'").append(utc.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)).append("', ");
-            }
-            else sb.append(value).append(", ");
+            } else
+                sb.append(value).append(", ");
         });
         sb.append("}");
         return sb.toString();
@@ -155,8 +167,8 @@ public class DatabaseManager {
     }
 
     public User fetchUser(String username) {
-        String query =  "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
-                        "FROM user WHERE username = $username";
+        String query = "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
+                "FROM user WHERE username = $username";
         try {
             Response response = driver.queryBind(query, Map.of("username", username));
             return userFromValue(response.take(0).getArray().get(0));
@@ -172,10 +184,10 @@ public class DatabaseManager {
     }
 
     public long getUnreadNotifications(User user) {
-        String query =  "SELECT count() FROM notification " +
-                        "WHERE (target = $id OR target = $type) " +
-                            "AND id NOTINSIDE (SELECT VALUE out FROM viewed_notification WHERE in = $id) " +
-                        "GROUP ALL";
+        String query = "SELECT count() FROM notification " +
+                "WHERE (target = $id OR target = $type) " +
+                "AND id NOTINSIDE (SELECT VALUE out FROM viewed_notification WHERE in = $id) " +
+                "GROUP ALL";
 
         Response response = driver.queryBind(query, Map.of("id", user.getUserId(), "type", user.getType()));
         Value result = response.take(0);
@@ -186,7 +198,8 @@ public class DatabaseManager {
     public List<Notification> getNotifications(User user, boolean listAll) {
         String query = "SELECT * FROM notification WHERE (target = $id OR target = $type) ";
 
-        if (!listAll) query += "AND id NOTINSIDE (SELECT VALUE out FROM viewed_notification WHERE in = $id) ";
+        if (!listAll)
+            query += "AND id NOTINSIDE (SELECT VALUE out FROM viewed_notification WHERE in = $id) ";
         query += "ORDER BY created_at DESC";
 
         Response response = driver.queryBind(query, Map.of("id", user.getUserId(), "type", user.getType()));
@@ -205,18 +218,19 @@ public class DatabaseManager {
         driver.relate(user.getUserId(), "viewed_notification", notification.getId());
     }
 
-    public List<Log> getLogs (String search){
+    public List<Log> getLogs(String search) {
         String query = "SELECT action, details, created_at, user.name AS userName FROM log";
 
-        if (!search.isEmpty()) query += " WHERE string::contains(string::lowercase(type::string(user.name)), string::lowercase($search))";
-        
+        if (!search.isEmpty())
+            query += " WHERE string::contains(string::lowercase(type::string(user.name)), string::lowercase($search))";
+
         query += " ORDER BY created_at DESC";
 
         Response response = search.isEmpty()
-            ? driver.query(query)
-            : driver.queryBind(query, Map.of("search", search));
+                ? driver.query(query)
+                : driver.queryBind(query, Map.of("search", search));
 
-        List <Log> logs = new ArrayList<>();
+        List<Log> logs = new ArrayList<>();
         for (Value element : response.take(0).getArray()) {
             var obj = element.getObject();
             Log log = new Log();
@@ -224,7 +238,9 @@ public class DatabaseManager {
             log.setAction(obj.get("action").getString());
             log.setCreatedAt(obj.get("created_at").getDateTime());
             log.setDetails(obj.get("details").getString());
-            log.setUserName((obj.get("userName") != null && !obj.get("userName").isNone()) ? obj.get("userName").getString() : "Deleted User");
+            log.setUserName(
+                    (obj.get("userName") != null && !obj.get("userName").isNone()) ? obj.get("userName").getString()
+                            : "Deleted User");
 
             logs.add(log);
         }
@@ -232,21 +248,22 @@ public class DatabaseManager {
     }
 
     public List<User> getUsers(String search, User currUser) {
-        String query =  "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
-                        "FROM user WHERE id != $currentId ";
+        String query = "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
+                "FROM user WHERE id != $currentId ";
 
-        if (!search.isEmpty()) query += "AND (string::contains(string::lowercase(name), string::lowercase($search)) " +
-                                        "OR string::contains(string::lowercase(username), string::lowercase($search))) ";
+        if (!search.isEmpty())
+            query += "AND (string::contains(string::lowercase(name), string::lowercase($search)) " +
+                    "OR string::contains(string::lowercase(username), string::lowercase($search))) ";
 
         Response response = driver.queryBind(query, Map.of(
-            "currentId", currUser.getUserId(),
-            "search", search
-        ));
+                "currentId", currUser.getUserId(),
+                "search", search));
 
         List<User> users = new ArrayList<>();
         for (Value element : response.take(0).getArray()) {
             User u = userFromValue(element);
-            if (u != null) users.add(u);
+            if (u != null)
+                users.add(u);
         }
         return users;
     }
@@ -257,23 +274,39 @@ public class DatabaseManager {
 
         if (type.equals("ADMIN")) {
             return new Admin.Builder()
-                .setId(obj.get("id").getRecordId())
-                .setName(obj.get("name").getString())
-                .setUsername(obj.get("username").getString())
-                .setPassword(obj.get("password").getString())
-                .setEmail(obj.get("email").getString())
-                .setImage(obj.get("image").getString())
-                .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
-                .build();
+                    .setId(obj.get("id").getRecordId())
+                    .setName(obj.get("name").getString())
+                    .setUsername(obj.get("username").getString())
+                    .setPassword(obj.get("password").getString())
+                    .setEmail(obj.get("email").getString())
+                    .setImage(obj.get("image").getString())
+                    .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
+                    .build();
         }
 
-        var regData  = obj.get("reg_data").getObject();
+        var regData = obj.get("reg_data").getObject();
         var userData = obj.get("user_data").getArray().get(0).getObject();
 
         if (type.equals("EMPLOYEE")) {
             return new Employee.Builder()
-                .setSpecialization(userData.get("specialization").getString())
-                .setStartDate(userData.get("start_date").getDateTime())
+                    .setSpecialization(userData.get("specialization").getString())
+                    .setStartDate(userData.get("start_date").getDateTime())
+                    .setNif(regData.get("nif").getString())
+                    .setPhone(regData.get("phone").getString())
+                    .setAddress(regData.get("address").getString())
+                    .setId(obj.get("id").getRecordId())
+                    .setName(obj.get("name").getString())
+                    .setUsername(obj.get("username").getString())
+                    .setPassword(obj.get("password").getString())
+                    .setEmail(obj.get("email").getString())
+                    .setImage(obj.get("image").getString())
+                    .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
+                    .build();
+        }
+
+        return new Client.Builder()
+                .setScale(userData.get("scale").getString())
+                .setSector(userData.get("sector").getString())
                 .setNif(regData.get("nif").getString())
                 .setPhone(regData.get("phone").getString())
                 .setAddress(regData.get("address").getString())
@@ -285,22 +318,6 @@ public class DatabaseManager {
                 .setImage(obj.get("image").getString())
                 .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
                 .build();
-        }
-
-        return new Client.Builder()
-            .setScale(userData.get("scale").getString())
-            .setSector(userData.get("sector").getString())
-            .setNif(regData.get("nif").getString())
-            .setPhone(regData.get("phone").getString())
-            .setAddress(regData.get("address").getString())
-            .setId(obj.get("id").getRecordId())
-            .setName(obj.get("name").getString())
-            .setUsername(obj.get("username").getString())
-            .setPassword(obj.get("password").getString())
-            .setEmail(obj.get("email").getString())
-            .setImage(obj.get("image").getString())
-            .setStatus(UserStatus.valueOf(obj.get("status").getString()).toString())
-            .build();
     }
 
     public void setUserStatus(User user, String status) {
@@ -312,23 +329,29 @@ public class DatabaseManager {
         Transaction transaction = driver.beginTransaction();
 
         try {
-            transaction.query("UPDATE " + user.getUserId() + " MERGE   " + toSQL(User.toMap(user)));
+            Response response;
 
             if (user instanceof RegistrableUser reg) {
-                transaction.query(
-                    "UPDATE (SELECT VALUE ->is_a.out FROM " + user.getUserId() + ")[0] MERGE " + toSQL(RegistrableUser.toMap(reg))
-                );
-
                 if (reg instanceof Employee employee) {
-                    transaction.query(
+                    response = transaction.query(
                         "UPDATE (SELECT VALUE ->is_a.out->of_type.out FROM " + user.getUserId() + ")[0][0] MERGE " + toSQL(Employee.toMap(employee))
                     );
+                    response.take(0);
                 } else if (reg instanceof Client client) {
-                    transaction.query(
+                    response = transaction.query(
                         "UPDATE (SELECT VALUE ->is_a.out->of_type.out FROM " + user.getUserId() + ")[0][0] MERGE " + toSQL(Client.toMap(client))
                     );
+                    response.take(0);
                 }
+
+                response = transaction.query(
+                    "UPDATE (SELECT VALUE ->is_a.out FROM " + user.getUserId() + ")[0] MERGE " + toSQL(RegistrableUser.toMap(reg))
+                );
+                response.take(0);
             }
+
+            response = transaction.query("UPDATE " + user.getUserId() + " MERGE " + toSQL(User.toMap(user)));
+            response.take(0);
 
             transaction.commit();
             System.out.println("Updating user...");
@@ -355,8 +378,8 @@ public class DatabaseManager {
                     " OR string::contains(string::lowercase(manufacturer), string::lowercase($search))";
 
         Response response = search.isEmpty()
-            ? driver.query(query)
-            : driver.queryBind(query, Map.of("search", search));
+                ? driver.query(query)
+                : driver.queryBind(query, Map.of("search", search));
 
         List<Part> parts = new ArrayList<>();
         for (Value element : response.take(0).getArray()) {
@@ -380,17 +403,17 @@ public class DatabaseManager {
         try {
             String query = "CREATE equipment CONTENT " + toSQL(Equipment.toMap(equipment));
             Response response = transaction.query(query);
-            RecordId equipmentId = response.take(0).getArray().get(0).getObject().get("id").getRecordId(); equipment.setId(equipmentId);
+            RecordId equipmentId = response.take(0).getArray().get(0).getObject().get("id").getRecordId();
+            equipment.setId(equipmentId);
 
             RecordId clientId = transaction.query(
-                "(SELECT VALUE ->is_a.out->of_type.out FROM " + user.getUserId() + ")[0][0]"
-            ).take(0).getArray().get(0).getRecordId();
+                    "(SELECT VALUE ->is_a.out->of_type.out FROM " + user.getUserId() + ")[0][0]").take(0).getArray()
+                    .get(0).getRecordId();
 
             transaction.query("RELATE " + clientId + " -> inserts -> " + equipmentId);
 
             transaction.commit();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             transaction.cancel();
             System.err.println("Error saving equipment: " + e.getMessage());
             System.err.println("Transaction rolled back.");
@@ -412,8 +435,8 @@ public class DatabaseManager {
         query += " ORDER BY brand ASC";
 
         Response response = search.isEmpty()
-            ? driver.query(query)
-            : driver.queryBind(query, Map.of("search", search));
+                ? driver.query(query)
+                : driver.queryBind(query, Map.of("search", search));
 
         List<Equipment> list = new ArrayList<>();
         for (Value element : response.take(0).getArray())
@@ -421,7 +444,7 @@ public class DatabaseManager {
         return list;
     }
 
-    //------------------- TODO: --------------------
+    // ------------------- TODO: --------------------
 
     public void saveRepair(Equipment equipment, User user) {
         Transaction transaction = driver.beginTransaction();
@@ -437,7 +460,7 @@ public class DatabaseManager {
             transaction.commit();
 
             sendNotification(new NotificationRequest(
-                "New repair request submitted by " + user.getName(), "ADMIN"));
+                    "New repair request submitted by " + user.getName(), "ADMIN"));
 
         } catch (Exception e) {
             transaction.cancel();
@@ -449,13 +472,15 @@ public class DatabaseManager {
 
     public List<Repair> getRepairs(String search, String filterState, User user) {
         String query = "SELECT * FROM repair WHERE 1 = 1 ";
-        if(!user.getType().equals("ADMIN")) query += " AND id IN (SELECT VALUE out FROM user_repair WHERE in = " + user.getUserId() + ")";
-        if (!filterState.isEmpty()) query += "AND state = '" + filterState + "' ";
+        if (!user.getType().equals("ADMIN"))
+            query += " AND id IN (SELECT VALUE out FROM user_repair WHERE in = " + user.getUserId() + ")";
+        if (!filterState.isEmpty())
+            query += "AND state = '" + filterState + "' ";
         if (!search.isEmpty())
             query += "AND (repair_code ~ $search OR (<-requested.in.name)[0] ~ $search) ";
         Response response = search.isEmpty()
-            ? driver.query(query)
-            : driver.queryBind(query, Map.of("search", search));
+                ? driver.query(query)
+                : driver.queryBind(query, Map.of("search", search));
 
         List<Repair> list = new ArrayList<>();
         for (Value element : response.take(0).getArray())
@@ -477,15 +502,16 @@ public class DatabaseManager {
             driver.query(query);
 
             String message = messageForStateRepair(repair, state, reason);
-            if (message == null) return;
+            if (message == null)
+                return;
 
             if (state.equals("REJECTED_BY_EMPLOYEE")) {
                 sendNotification(new NotificationRequest(message, UserType.ADMIN.toString()));
-            }
-            else{
+            } else {
                 RecordId clientId = driver.query(
-                    "(SELECT VALUE in FROM user_repair WHERE out = " + repair.getId() + " AND in.type = 'CLIENT')[0]"
-                ).take(0).getRecordId();
+                        "(SELECT VALUE in FROM user_repair WHERE out = " + repair.getId()
+                                + " AND in.type = 'CLIENT')[0]")
+                        .take(0).getRecordId();
                 sendNotification(new NotificationRequest(message, clientId));
             }
         } catch (Exception e) {
@@ -495,17 +521,19 @@ public class DatabaseManager {
 
     private String messageForStateRepair(Repair repair, String state, String reason) {
         return switch (state) {
-                case "REJECTED_BY_ADMIN"->"Your repair request " + repair.getRepairCode() + " was rejected by the admin."+ (reason.isEmpty() ? "" : " Reason: " + reason);
-                case "REJECTED_BY_EMPLOYEE"->"Your repair request " + repair.getRepairCode() + " was rejected by the assigned employee." + (reason.isEmpty() ? "" : " Reason: " + reason);
-                case "COMPLETED"->"Your repair request " + repair.getRepairCode() + " was marked as completed.";
-                default->null;
-            };
+            case "REJECTED_BY_ADMIN" -> "Your repair request " + repair.getRepairCode() + " was rejected by the admin."
+                    + (reason.isEmpty() ? "" : " Reason: " + reason);
+            case "REJECTED_BY_EMPLOYEE" -> "Your repair request " + repair.getRepairCode()
+                    + " was rejected by the assigned employee." + (reason.isEmpty() ? "" : " Reason: " + reason);
+            case "COMPLETED" -> "Your repair request " + repair.getRepairCode() + " was marked as completed.";
+            default -> null;
+        };
     }
 
     public List<Employee> getAvailableEmployees(RecordId repairId) {
         String query = "SELECT *, (->is_a.out.*)[0] AS reg_data, (->is_a.out->of_type.out.*)[0] AS user_data " +
-                    "FROM user WHERE type = 'EMPLOYEE' AND status = 'ACTIVE' " +
-                    "AND id NOTINSIDE (SELECT VALUE in FROM user_repair WHERE out = $repairId)";
+                "FROM user WHERE type = 'EMPLOYEE' AND status = 'ACTIVE' " +
+                "AND id NOTINSIDE (SELECT VALUE in FROM user_repair WHERE out = $repairId)";
         Response response = driver.queryBind(query, Map.of("repairId", repairId));
         List<Employee> list = new ArrayList<>();
         for (Value element : response.take(0).getArray())
@@ -521,8 +549,8 @@ public class DatabaseManager {
             transaction.commit();
 
             sendNotification(new NotificationRequest(
-                "You have been assigned repair " + repair.getRepairCode(),
-                employee.getUserId()));
+                    "You have been assigned repair " + repair.getRepairCode(),
+                    employee.getUserId()));
         } catch (Exception e) {
             transaction.cancel();
             System.err.println("Error assigning employee: " + e.getMessage());
@@ -542,12 +570,16 @@ public class DatabaseManager {
         Value endDate = obj.get("end_date");
         Value cost = obj.get("cost");
 
-        if (repairCode != null && !repairCode.isNone()) repair.setRepairCode(repairCode.getString());
+        if (repairCode != null && !repairCode.isNone())
+            repair.setRepairCode(repairCode.getString());
         repair.setState(state.getString());
-        if (observations != null && !observations.isNone()) repair.setObservations(observations.getString());
+        if (observations != null && !observations.isNone())
+            repair.setObservations(observations.getString());
         repair.setStartDate(startDate.getDateTime());
-        if (endDate != null && !endDate.isNone()) repair.setEndDate(endDate.getDateTime());
-        if (cost != null && !cost.isNull()) repair.setCost(cost.getDouble());
+        if (endDate != null && !endDate.isNone())
+            repair.setEndDate(endDate.getDateTime());
+        if (cost != null && !cost.isNull())
+            repair.setCost(cost.getDouble());
 
         return repair;
     }

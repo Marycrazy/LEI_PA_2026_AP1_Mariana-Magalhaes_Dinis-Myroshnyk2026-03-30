@@ -47,7 +47,6 @@ public class RepairListState extends ListState<Repair> {
         JComboBox<String> filterStatus = new JComboBox<>(new String[]{"Pending", "Accepted", "Rejected by admin", "Rejected by employee", "In progress", "Completed", "Archived"});
         JButton btnfilter = new JButton("Filter by status");
 
-
         Runnable applySearch = () -> {
             search = txtSearch.getText().trim();
             refresh();
@@ -68,5 +67,4 @@ public class RepairListState extends ListState<Repair> {
         extrasPanel.add(filterStatus);
         extrasPanel.add(btnfilter);
     }
-    
 }

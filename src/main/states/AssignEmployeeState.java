@@ -17,7 +17,7 @@ public class AssignEmployeeState extends ListState<Employee> {
     public AssignEmployeeState(Repair repair) {
         this.repair = repair;
     }
-    
+
     @Override
     protected String getTitle() {
         return "ASSIGN EMPLOYEE - " + repair.getRepairCode();
@@ -54,7 +54,5 @@ public class AssignEmployeeState extends ListState<Employee> {
     }
 
     @Override
-    protected void renderExtras(JPanel extrasPanel) {
-    }
-    
+    protected void renderExtras(JPanel extrasPanel) {}
 }

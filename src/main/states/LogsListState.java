@@ -39,9 +39,7 @@ public class LogsListState extends ListState<Log> {
     }
 
     @Override
-    protected void onSelect(Log u) {
-        // next(new UserDetailState(u));
-    }
+    protected void onSelect(Log u) {}
 
     @Override
     protected void renderExtras(JPanel extrasPanel) {
@@ -60,5 +58,4 @@ public class LogsListState extends ListState<Log> {
         extrasPanel.add(txtSearch);
         extrasPanel.add(btnSearch);
     }
-    
 }

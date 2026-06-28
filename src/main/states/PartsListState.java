@@ -53,7 +53,4 @@ public class PartsListState extends ListState<Part> {
         extrasPanel.add(txtSearch);
         extrasPanel.add(btnSearch);
     }
-
-    
-
 }

@@ -18,18 +18,14 @@ public class EquipmentDetailState extends DetailState<Equipment> {
     public EquipmentDetailState(Equipment subject) {
         this.subject = subject;
     }
-    
+
     @Override
     protected String getTitle() {
         return "Equipment Details";
     }
 
-    //Nao sei o porque do OnEnter
     @Override
-    protected void onEnter() {
-        // Equipment fresh = DatabaseManager.getInstance().fetchEquipment(subject.getId());
-        // if (fresh != null) subject = fresh;
-    }
+    protected void onEnter() {}
 
     @Override
     protected void renderFields(FormBuilder form) {
@@ -40,7 +36,6 @@ public class EquipmentDetailState extends DetailState<Equipment> {
             .addField("Manufacturing date:", readOnly(String.valueOf (subject.getManufacturingDate())))
             .addField("Last repair date:", readOnly(String.valueOf (subject.getLastRepairDate())))
             .addField("Last submission date:", readOnly(String.valueOf (subject.getLastSubmissionDate())));
-        
     }
 
     private JTextField readOnly(String value) {
@@ -71,9 +66,4 @@ public class EquipmentDetailState extends DetailState<Equipment> {
 
         return actions;
     }
-
-
-
-
-    
 }

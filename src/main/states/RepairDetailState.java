@@ -30,7 +30,7 @@ public class RepairDetailState extends DetailState<Repair>{
         Repair fresh = DatabaseManager.getInstance().fetchRepair(subject.getId());
         if (fresh != null) subject = fresh;
     }
-    
+
     @Override
     protected void renderFields(FormBuilder form) {
         form.addField("Code:", readOnly(subject.getRepairCode()))
@@ -75,7 +75,6 @@ public class RepairDetailState extends DetailState<Repair>{
                 case "REJECTED_BY_ADMIN":
                     actions.add(statusButton("Archive", "archive this repair", RepairStatus.ARCHIVED));
                     break;
-                
             }
         }else if (user.getType().equals("EMPLOYEE")) {
             switch (subject.getState()) {
@@ -102,7 +101,7 @@ public class RepairDetailState extends DetailState<Repair>{
             );
             if (confirm == JOptionPane.YES_OPTION) {
                 if (user.getType().equals("ADMIN") && newStatus == RepairStatus.ACCEPTED)
-                    next(new AssignEmployeeState(subject)); 
+                    next(new AssignEmployeeState(subject));
                 else if (newStatus == RepairStatus.REJECTED_BY_ADMIN || newStatus == RepairStatus.REJECTED_BY_EMPLOYEE)
                     reject(newStatus);
                 else{
@@ -132,7 +131,4 @@ public class RepairDetailState extends DetailState<Repair>{
         DatabaseManager.getInstance().updateRepairState(subject, "", newState.toString());
         JOptionPane.showMessageDialog(null, "Repair state updated successfully.");
     }
-
-    
-
 }

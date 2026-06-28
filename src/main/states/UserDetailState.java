@@ -133,7 +133,7 @@ public class UserDetailState extends DetailState<User> {
 
         JButton btnEdit = new JButton("Edit Profile");
         btnEdit.addActionListener(e ->
-            JOptionPane.showMessageDialog(null, "Edit Profile - TODO")
+            next(new EditUserState(subject))
         );
         actions.add(btnEdit);
 

@@ -1,5 +1,8 @@
 package main.states;
 
+import java.awt.Dimension;
+import java.awt.Image;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -8,6 +11,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.io.File;
@@ -23,6 +28,7 @@ import main.utils.ImageService;
 
 public class EditUserState extends State {
     private final User subject;
+    private static final int PHOTO_SIZE = 150;
 
     // common fields
     private JTextField txtName = new JTextField(textFieldCols);
@@ -44,7 +50,7 @@ public class EditUserState extends State {
 
     // image
     private File selectedImage;
-    private JLabel lblImageStatus;
+    private JLabel lblPhoto;
 
     public EditUserState(User subject) {
         this.subject = subject;
@@ -73,10 +79,17 @@ public class EditUserState extends State {
             form.addField("Specialization:", cmbSpecialization);
         }
 
-        lblImageStatus = new JLabel(hasImage() ? "Current photo: " + subject.getImage() : "No image set");
+        lblPhoto = new JLabel("Loading...", SwingConstants.CENTER);
+        lblPhoto.setPreferredSize(new Dimension(PHOTO_SIZE, PHOTO_SIZE));
+        loadCurrentPhoto();
+
         JButton btnChooseImage = new JButton("Change photo...");
         btnChooseImage.addActionListener(e -> chooseImage());
-        form.addRow(btnChooseImage, lblImageStatus);
+
+        JPanel photoPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 10, 0));
+        photoPanel.add(lblPhoto);
+        photoPanel.add(btnChooseImage);
+        form.addFullWidthRow(photoPanel);
 
         JButton btnCancel = new JButton("Cancel");
         btnCancel.addActionListener(e -> back());
@@ -94,15 +107,17 @@ public class EditUserState extends State {
         txtUsername.setText(subject.getUsername());
         txtUsername.setEditable(false);
         txtEmail.setText(subject.getEmail());
-        // password intentionally left blank: blank on submit means "keep current"
+        // password is left blank
 
         if (subject instanceof Employee emp) {
             txtNif.setText(emp.getNif());
+            txtNif.setEditable(false);
             txtPhone.setText(emp.getPhone());
             txtAddress.setText(emp.getAddress());
             cmbSpecialization.setSelectedItem(Integer.valueOf(emp.getSpecialization()));
         } else if (subject instanceof Client client) {
             txtNif.setText(client.getNif());
+            txtNif.setEditable(false);
             txtPhone.setText(client.getPhone());
             txtAddress.setText(client.getAddress());
             txtSector.setText(client.getSector());
@@ -110,8 +125,30 @@ public class EditUserState extends State {
         }
     }
 
-    private boolean hasImage() {
-        return subject.getImage() != null && !subject.getImage().isBlank();
+    private void loadCurrentPhoto() {
+        String filename = subject.getImage();
+        if (filename == null || filename.isBlank()) {
+            lblPhoto.setText("No photo");
+            return;
+        }
+
+        new SwingWorker<ImageIcon, Void>() {
+            @Override
+            protected ImageIcon doInBackground() throws Exception {
+                Image raw = ImageService.download(filename);
+                return new ImageIcon(scaleToFit(raw, PHOTO_SIZE));
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    lblPhoto.setIcon(get());
+                    lblPhoto.setText(null);
+                } catch (Exception e) {
+                    lblPhoto.setText("No photo");
+                }
+            }
+        }.execute();
     }
 
     private void chooseImage() {
@@ -119,21 +156,41 @@ public class EditUserState extends State {
         chooser.setFileFilter(new FileNameExtensionFilter("Images", "jpg", "jpeg", "png"));
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             selectedImage = chooser.getSelectedFile();
-            lblImageStatus.setText(selectedImage.getName());
+            showLocalPreview(selectedImage);
         }
+    }
+
+    private void showLocalPreview(File file) {
+        try {
+            Image raw = javax.imageio.ImageIO.read(file);
+            if (raw == null) throw new java.io.IOException("Unsupported image");
+            lblPhoto.setIcon(new ImageIcon(scaleToFit(raw, PHOTO_SIZE)));
+            lblPhoto.setText(null);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Could not preview image: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            selectedImage = null;
+        }
+    }
+
+    private Image scaleToFit(Image image, int maxSize) {
+        int w = image.getWidth(null);
+        int h = image.getHeight(null);
+
+        double scale = Math.min((double) maxSize / w, (double) maxSize / h);
+        int newW = Math.max(1, (int) (w * scale));
+        int newH = Math.max(1, (int) (h * scale));
+
+        return image.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
     }
 
     private boolean validateFields() {
         FormValidator validator = new FormValidator()
             .require("Name", txtName)
-            .require("Email", txtEmail);
-        // password not required: blank = keep current
-        // username not validated: read-only
+            .dbValidate("Email", txtEmail, "fn::check_email");
 
         if (subject instanceof Client || subject instanceof Employee) {
             validator
-                .require("NIF", txtNif)
-                .require("Phone", txtPhone)
+                .dbValidate("Phone", txtPhone, "fn::check_phone")
                 .require("Address", txtAddress);
         }
 
@@ -168,6 +225,11 @@ public class EditUserState extends State {
 
         try {
             DatabaseManager.getInstance().updateUser(updated);
+
+            if (subject.getUsername().equals(State.user.getUsername())) {
+                State.user = updated;
+            }
+
             JOptionPane.showMessageDialog(null, "User updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             back();
         } catch (Exception e) {
@@ -188,7 +250,7 @@ public class EditUserState extends State {
                 .setPassword(password)
                 .setEmail(txtEmail.getText())
                 .setImage(imagePath)
-                .setNif(txtNif.getText())
+                .setNif(emp.getNif())
                 .setPhone(txtPhone.getText())
                 .setAddress(txtAddress.getText())
                 .setSpecialization(String.valueOf(cmbSpecialization.getSelectedItem()))
@@ -203,7 +265,7 @@ public class EditUserState extends State {
                 .setPassword(password)
                 .setEmail(txtEmail.getText())
                 .setImage(imagePath)
-                .setNif(txtNif.getText())
+                .setNif(client.getNif())
                 .setPhone(txtPhone.getText())
                 .setAddress(txtAddress.getText())
                 .setSector(txtSector.getText())
